@@ -5,3 +5,13 @@
     linear-gradient(to bottom, #e5e4e7 1px, transparent 1px);
   background-size: 32px 32px;
 }
+
+.page {
+  position: relative;
+  z-index: 1;
+  background-color: #fff;
+  background-image:
+    linear-gradient(to right, #e5e4e7 1px, transparent 1px),
+    linear-gradient(to bottom, #e5e4e7 1px, transparent 1px);
+  background-size: 32px 32px;
+}

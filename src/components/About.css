@@ -1,0 +1,29 @@
+.about {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.about-box {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  container-type: size;
+  overflow: hidden;
+}
+
+@media (orientation: portrait) {
+  .about {
+    align-items: flex-start;
+  }
+
+  .about-box {
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+  }
+}

@@ -1,5 +1,9 @@
 import './Experience.css'
 
 export default function Experience() {
-  return null
+  return (
+    <section className="exp">
+      <div className="exp-box" />
+    </section>
+  )
 }

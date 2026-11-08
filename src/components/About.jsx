@@ -1,5 +1,9 @@
 import './About.css'
 
 export default function About() {
-  return null
+  return (
+    <section className="about">
+      <div className="about-box" />
+    </section>
+  )
 }
