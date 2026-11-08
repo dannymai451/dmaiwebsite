@@ -43,6 +43,32 @@
   white-space: nowrap;
 }
 
+.hero-links {
+  margin-top: var(--hero-headline-gap);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.15rem;
+  color: #2a1b1b;
+}
+
+.hero-links a {
+  display: block;
+  height: clamp(1.86rem, 3.24cqi, 2.34rem);
+  color: inherit;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-links a:hover {
+  transform: scale(1.22);
+}
+
+.hero-links svg {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
 @keyframes hero-fade-in {
   from {
     opacity: 0;
