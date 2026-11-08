@@ -25,7 +25,7 @@ export default function Hero() {
     if (!hero || !row) return
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const greeting = hero.querySelector('.hero-greeting')
+    const greeting = hero.querySelector('.hero-intro')
     let frame = 0
     let revealed = reduce
     let popStart = reduce ? performance.now() : 0
@@ -79,7 +79,9 @@ export default function Hero() {
   return (
     <section className="hero" ref={heroRef}>
       <div className="hero-box">
-        <p className="hero-greeting">Hey! I'm Danny</p>
+        <div className="hero-intro">
+          <p className="hero-greeting">Hey! I'm Danny</p>
+        </div>
       </div>
       <div className="hero-hoptimists" ref={rowRef}>
         {HOPTIMISTS.map(([src, alt]) => (

@@ -15,20 +15,32 @@
   container-type: size;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1.5rem;
+}
+
+.hero-intro {
+  --hero-headline-gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: hero-fade-in 1s ease both;
 }
 
 .hero-greeting {
   margin: 0;
-  font-family: "Dancing Script", cursive;
-  font-weight: 600;
-  font-size: clamp(3.25rem, 11cqi, 8.5rem);
-  line-height: 1;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(3.2rem, 11.2cqi, 7.6rem);
+  line-height: 0.72;
+  /* Tight line-height paints past the line box; pad so link margin measures from the ink. */
+  padding-bottom: 0.10em;
   color: #1a1a1a;
   text-align: center;
   white-space: nowrap;
-  animation: hero-fade-in 2s ease both;
 }
 
 @keyframes hero-fade-in {
@@ -68,7 +80,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-greeting {
+  .hero-intro {
     animation: none;
   }
 }
