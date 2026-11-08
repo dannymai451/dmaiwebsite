@@ -1,0 +1,24 @@
+.panel-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--frame-width, 100%);
+  height: var(--frame-height, 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.panel-frame-fill {
+  position: absolute;
+  z-index: -1;
+  background: #fff;
+  left: 5.2%;
+  top: 5.2%;
+  right: 5.2%;
+  bottom: 5.2%;
+}
+
+.panel-frame canvas {
+  position: absolute;
+  display: block;
+}

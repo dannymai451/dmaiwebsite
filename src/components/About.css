@@ -14,6 +14,61 @@
   height: min(100vh, calc(100vw * 9 / 16));
   container-type: size;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-copy {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  padding-inline: 12cqi;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.about-title {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(3.4rem, 11cqi, 7.2rem);
+  line-height: 0.78;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+  transform: rotate(-1.6deg);
+}
+
+.about-title span {
+  position: relative;
+  z-index: 1;
+}
+
+.about-mark {
+  position: absolute;
+  z-index: 0;
+  left: -3%;
+  top: 48%;
+  width: 106%;
+  height: 0.58em;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.about-copy p {
+  max-width: 36rem;
+  margin: 1.85rem 0 0;
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: clamp(1.05rem, 2.25cqi, 1.32rem);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #241818;
+  text-wrap: balance;
 }
 
 @media (orientation: portrait) {

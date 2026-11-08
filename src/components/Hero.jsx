@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import Frame from './library/Frame'
 import './Hero.css'
 
 const HOPTIMISTS = [
@@ -70,7 +71,8 @@ export default function Hero() {
       frame = 0
       const elapsed = revealed ? now - popStart : 0
       const rect = hero.getBoundingClientRect()
-      const tuck = Math.min(1, Math.max(0, -rect.top / (rect.height || 1)))
+      const TUCK_SCROLL = 0.5 // tuck over half a hero height
+      const tuck = Math.min(1, Math.max(0, -rect.top / ((rect.height || 1) * TUCK_SCROLL)))
       const imgs = row.querySelectorAll('img')
       imgs.forEach((img, i) => {
         const delay = POP_DELAYS_MS[i] ?? POP_DELAYS_MS.at(-1) ?? 0
@@ -118,6 +120,7 @@ export default function Hero() {
   return (
     <section className="hero" ref={heroRef}>
       <div className="hero-box">
+        <Frame width="100%" height="100%" />
         <div className="hero-intro">
           <p className="hero-greeting">Hey! I'm Danny</p>
           <nav className="hero-links" aria-label="Contact">

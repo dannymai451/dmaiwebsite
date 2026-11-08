@@ -22,6 +22,8 @@
 }
 
 .hero-intro {
+  position: relative;
+  z-index: 1;
   --hero-headline-gap: 1.5rem;
   display: flex;
   flex-direction: column;
