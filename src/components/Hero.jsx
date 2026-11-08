@@ -55,7 +55,7 @@ export default function Hero() {
     const greeting = hero.querySelector('.hero-intro')
     let frame = 0
     let revealed = reduce
-    let popStart = reduce ? performance.now() : 0
+    let popStart = 0
 
     const popAmount = (elapsed, delay) => {
       if (!revealed) return 0
@@ -102,8 +102,7 @@ export default function Hero() {
 
     greeting?.addEventListener('animationend', onNameEnd)
     const fallback = window.setTimeout(reveal, 2100)
-    if (reduce) reveal()
-    else frame = requestAnimationFrame(apply)
+    if (!reduce) frame = requestAnimationFrame(apply)
 
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
