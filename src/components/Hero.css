@@ -1,0 +1,86 @@
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.hero-box {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  container-type: size;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-greeting {
+  margin: 0;
+  font-family: "Dancing Script", cursive;
+  font-weight: 600;
+  font-size: clamp(3.25rem, 11cqi, 8.5rem);
+  line-height: 1;
+  color: #1a1a1a;
+  text-align: center;
+  white-space: nowrap;
+  animation: hero-fade-in 2s ease both;
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-hoptimists {
+  --h: min(35vh, 22.4vw);
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hero-hoptimists img {
+  height: var(--h);
+  width: auto;
+  margin-inline: calc(var(--h) * -0.16);
+  transform: translateY(var(--shift, 100%));
+  filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.16));
+}
+
+.hero-hoptimists img:nth-child(2) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-greeting {
+    animation: none;
+  }
+}
+
+@media (orientation: portrait) {
+  .hero {
+    align-items: flex-start;
+  }
+
+  .hero-box {
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+  }
+}
