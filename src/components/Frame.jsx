@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import './Frame.css'
 
 function mulberry32(seed) {
@@ -45,7 +45,7 @@ function inkBorder(ctx, pts, { width, color, alpha, seed, amp }) {
 export default function Frame({ paper = '#fff', width = '100%', height = '100%' }) {
   const ref = useRef(null)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const host = ref.current
     if (!host) return
     const fill = host.querySelector('.panel-frame-fill')
@@ -78,8 +78,6 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
       fill.style.height = `${Math.max(0, h - inset * 2)}px`
       host.parentElement?.style.setProperty('--ink-inset', `${inset}px`)
       host.parentElement?.style.setProperty('--ink-inner', `${inkInner}px`)
-      // Distance from the frame box edge to the stroke centerline.
-      host.parentElement?.style.setProperty('--ink-edge', `${margin}px`)
 
       const pts = []
       const corners = [
