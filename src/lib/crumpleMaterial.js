@@ -1,5 +1,4 @@
 // Fold adapted from Subframe Crease Reveal (MIT). Copyright (c) 2026 Subframe.
-// Lighting and perspective are removed. Displacement is multiplied by (1 - progress).
 
 import {
   ClampToEdgeWrapping,
@@ -10,7 +9,7 @@ import {
   Vector2,
 } from 'three'
 
-const vertexShader = /* glsl */ `
+const vertexShader = `
 uniform float uProgress;
 uniform vec2 uPlane;
 varying vec2 vUv;
@@ -43,7 +42,7 @@ void main() {
 }
 `
 
-const fragmentShader = /* glsl */ `
+const fragmentShader = `
 uniform sampler2D uMap;
 uniform float uProgress;
 varying vec2 vUv;
