@@ -30,7 +30,7 @@ function Sheet({ progress, size }) {
 
   return (
     <mesh material={material}>
-      <planeGeometry args={[size.w, size.h, 70, 80]} />
+      <planeGeometry args={[size.w, size.h, 140, 160]} />
     </mesh>
   )
 }
