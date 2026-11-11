@@ -19,7 +19,7 @@ const HOPTIMISTS = [
   { src: '/hoptimist-3.webp', alt: 'Red hoptimist' },
 ]
 
-function syncFigureCrop(root) {
+function syncFigureCrop(root, size) {
   const row = root.querySelector('.hero-hoptimists')
   const frame = root.querySelector('.panel-frame')
   if (!row || !frame) return
@@ -29,23 +29,50 @@ function syncFigureCrop(root) {
   const inset = vv && vv.scale <= 1.01 ? Math.max(0, layoutHeight - vv.height - vv.offsetTop) : 0
   row.style.setProperty('--browser-bottom', `${inset}px`)
 
-  if (!window.matchMedia('(orientation: portrait)').matches) {
+  const portrait = window.matchMedia('(orientation: portrait)').matches
+  if (!portrait) {
     row.style.removeProperty('--h')
+    size.key = ''
     return
   }
-  const inkEdge = Number.parseFloat(getComputedStyle(frame.parentElement).getPropertyValue('--ink-edge'))
-  if (!Number.isFinite(inkEdge)) return
-  const visibleBottom = vv ? vv.height : window.innerHeight
-  const gap = visibleBottom - (frame.getBoundingClientRect().bottom - inkEdge)
-  if (!(gap > 0)) return
-  const styles = getComputedStyle(row)
-  const keep = Number(styles.getPropertyValue('--screen-keep'))
-  const above = Number(styles.getPropertyValue('--desktop-above-frame'))
-  const figure = Number(styles.getPropertyValue('--desktop-figure'))
-  const join = Number(styles.getPropertyValue('--join'))
-  const strip = keep - above / figure
-  const cap = window.innerWidth / (3 - 4 * join)
-  row.style.setProperty('--h', `${Math.min(gap / strip, cap)}px`)
+  // A taller viewport is the toolbar collapsing. Width is a real resize.
+  const key = String(window.innerWidth)
+  if (size.key === key && row.style.getPropertyValue('--h')) return
+  const measure = (tries = 0) => {
+    const stage = frame.parentElement
+    if (!stage) return
+    const stageBox = stage.getBoundingClientRect()
+    const frameBox = frame.getBoundingClientRect()
+    const inkEdge = Number.parseFloat(getComputedStyle(stage).getPropertyValue('--ink-edge'))
+    const margin = Math.round(Math.min(Math.round(frameBox.width), Math.round(frameBox.height)) * 0.052)
+    const widthReady = Math.abs(stageBox.width - window.innerWidth) <= 1
+    // The frame republishes --ink-edge a beat after its box changes.
+    if (!widthReady || inkEdge !== margin) {
+      if (tries < 12) size.frame = requestAnimationFrame(() => measure(tries + 1))
+      return
+    }
+    // The strip under the ink, inside the svh stage. Scroll moves both rects together.
+    const gap = stageBox.bottom - frameBox.bottom + inkEdge
+    if (!(gap > 0)) return
+    const styles = getComputedStyle(row)
+    const keep = Number(styles.getPropertyValue('--screen-keep'))
+    const above = Number(styles.getPropertyValue('--desktop-above-frame'))
+    const figure = Number(styles.getPropertyValue('--desktop-figure'))
+    const join = Number(styles.getPropertyValue('--join'))
+    const strip = keep - above / figure
+    const cap = window.innerWidth / (3 - 4 * join)
+    row.style.setProperty('--h', `${Math.min(gap / strip, cap)}px`)
+    size.key = key
+  }
+  if (size.defer) {
+    cancelAnimationFrame(size.frame)
+    // The frame republishes its ink line on its own resize pass. Measure after that.
+    size.frame = requestAnimationFrame(() => {
+      size.frame = requestAnimationFrame(() => measure(0))
+    })
+    return
+  }
+  measure()
 }
 
 export default function Hero() {
@@ -54,8 +81,10 @@ export default function Hero() {
   useLayoutEffect(() => {
     const root = heroRef.current
     if (!root) return
-    const sync = () => syncFigureCrop(root)
+    const size = { key: '', frame: 0, defer: false }
+    const sync = () => syncFigureCrop(root, size)
     sync()
+    size.defer = true
     const frame = root.querySelector('.panel-frame')
     const observer = new ResizeObserver(sync)
     if (frame) observer.observe(frame)
@@ -64,6 +93,7 @@ export default function Hero() {
     vv?.addEventListener('scroll', sync)
     window.addEventListener('resize', sync)
     return () => {
+      cancelAnimationFrame(size.frame)
       observer.disconnect()
       vv?.removeEventListener('resize', sync)
       vv?.removeEventListener('scroll', sync)
