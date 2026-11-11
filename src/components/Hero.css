@@ -72,8 +72,19 @@
   justify-content: center;
   transform: translateX(-50%);
   pointer-events: none;
+  /* Clip the translated 30% at this element's own edge. It does not move the row. */
+  clip-path: inset(-40px -24px 0 -24px);
   /* 0 to 1 as the hero scrolls away. GSAP ScrollTrigger drives it. */
   --tuck: 0;
+}
+
+@media (pointer: coarse) {
+  .hero-hoptimists {
+    /* Square figures overlap 0.16h on each side of both joins, so the painted
+       row is 2.36h wide. 40vw leaves about 3vw of margin per side. 42vh keeps
+       the heads below the icons on a short landscape screen. */
+    --h: min(42vh, 40vw);
+  }
 }
 
 .hero-hoptimists img {
