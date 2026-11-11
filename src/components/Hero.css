@@ -14,7 +14,6 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
-  animation: hero-fade-in 1s ease both;
 }
 
 .hero-greeting {
@@ -62,16 +61,6 @@
   width: auto;
 }
 
-@keyframes hero-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
 .hero-hoptimists {
   --h: min(35vh, 22.4vw);
   position: fixed;
@@ -83,13 +72,17 @@
   justify-content: center;
   transform: translateX(-50%);
   pointer-events: none;
+  /* 0 to 1 as the hero scrolls away. GSAP ScrollTrigger drives it. */
+  --tuck: 0;
 }
 
 .hero-hoptimists img {
+  /* 0 to 1 when the figure pops up. GSAP drives it after the greeting fades in. */
+  --pop: 0;
   height: var(--h);
   width: auto;
   margin-inline: calc(var(--h) * -0.16);
-  transform: translateY(var(--shift, 100%));
+  transform: translateY(calc(100% - 70% * var(--pop) * (1 - var(--tuck))));
   filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.16));
 }
 
@@ -99,10 +92,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-intro {
-    animation: none;
-  }
-
   .hero-links a {
     transition: none;
   }

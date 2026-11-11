@@ -1,9 +1,31 @@
+import { useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
 import Frame from './Frame'
-import { useAboutFade } from '../hooks/useAboutFade'
 import './About.css'
 
+gsap.registerPlugin(useGSAP, ScrollTrigger)
+
 export default function About() {
-  const { aboutRef, revealRef } = useAboutFade()
+  const aboutRef = useRef(null)
+  const revealRef = useRef(null)
+
+  // Fade the about frame in across the scroll from the hero. Reduced motion
+  // skips the tween and About.css shows the frame at full opacity.
+  useGSAP(() => {
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.fromTo(
+        revealRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          ease: 'sine.inOut',
+          scrollTrigger: { trigger: aboutRef.current, start: 'top 96%', end: 'top 18%', scrub: true },
+        },
+      )
+    })
+  })
 
   return (
     <section className="about" ref={aboutRef} aria-labelledby="about-title">
