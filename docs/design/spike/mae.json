@@ -7,18 +7,18 @@
   "size": [570, 657],
   "runs": 2,
   "screenshotsIdentical": true,
-  "note": "Aligned MAE compares the img slot screenshot to each shader slot. Interior pixels are source alpha 0 or 255 and at least one pixel away from a partial-alpha texel.",
+  "note": "Aligned MAE compares the img slot screenshot to each shader slot. Interior pixels are source alpha 0 or 255 and at least one pixel away from a partial-alpha texel. Shade is a multiply clamped to about 0.65 to 1.25.",
   "progress0": {
-    "mae255": 40.05656492830148,
-    "interiorMae255": 39.65007452808577,
+    "mae255": 38.513305206191724,
+    "interiorMae255": 37.899570794424875,
     "bestShift": [0, 0],
-    "bestMae255": 40.05656492830148
+    "bestMae255": 38.513305206191724
   },
   "progress0.5": {
-    "mae255": 23.406634801107526,
-    "interiorMae255": 23.014183470641274,
+    "mae255": 15.699457929450631,
+    "interiorMae255": 15.020436935085595,
     "bestShift": [0, 0],
-    "bestMae255": 23.406634801107526
+    "bestMae255": 15.699457929450631
   },
   "progress1": {
     "alignedMae255": 0.12409766170881287,
