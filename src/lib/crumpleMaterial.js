@@ -72,12 +72,12 @@ void main() {
   float chest = (0.42 - 0.5) * h + sin(p.x / w * 8.5) * h * 0.022;
   float hands = (0.24 - 0.5) * h + sin(p.x / w * 6.4 + 1.1) * h * 0.018;
   float hem = (0.10 - 0.5) * h + sin(p.x / w * 11.0) * h * 0.012;
-  p = bendY(p, chest, 0.38 * depth, h * 0.09, crease, tilt);
-  p = bendY(p, hands, -0.32 * depth, h * 0.07, crease, tilt);
-  p = bendY(p, hem, 0.22 * depth, h * 0.055, crease, tilt);
+  p = bendY(p, chest, 0.95 * depth, h * 0.065, crease, tilt);
+  p = bendY(p, hands, -0.85 * depth, h * 0.05, crease, tilt);
+  p = bendY(p, hem, 0.6 * depth, h * 0.042, crease, tilt);
   float gate = 1.0 - smoothstep(0.52, 0.62, uv.y);
-  p = bendX(p, (0.14 - 0.5) * w, 0.26 * depth * gate, w * 0.1, crease, tilt);
-  p = bendX(p, (0.84 - 0.5) * w, -0.22 * depth * gate, w * 0.11, crease, tilt);
+  p = bendX(p, (0.14 - 0.5) * w, 0.7 * depth * gate, w * 0.07, crease, tilt);
+  p = bendX(p, (0.84 - 0.5) * w, -0.6 * depth * gate, w * 0.08, crease, tilt);
 
   float e = 0.016;
   vec2 nuv = uv * vec2(3.4, 4.2) + vec2(1.7, 0.4);
@@ -87,12 +87,12 @@ void main() {
   vec2 nuv2 = uv * vec2(6.8, 7.4) + vec2(5.0, 1.2);
   float hx = (noise(nuv2 + vec2(e, 0.0)) - noise(nuv2 - vec2(e, 0.0))) / (2.0 * e);
   float hy = (noise(nuv2 + vec2(0.0, e)) - noise(nuv2 - vec2(0.0, e))) / (2.0 * e);
-  p.xy += (vec2(-gx, -gy) * 0.02 + vec2(-hx, -hy) * 0.008) * span * depth;
-  p.z += ((n0 - 0.5) * 0.08 + (noise(nuv2) - 0.5) * 0.03) * span * depth;
+  p.xy += (vec2(-gx, -gy) * 0.05 + vec2(-hx, -hy) * 0.018) * span * depth;
+  p.z += ((n0 - 0.5) * 0.22 + (noise(nuv2) - 0.5) * 0.08) * span * depth;
 
   vec3 pos = position + (p - position) * k;
-  float shade = mix(1.0, 0.78, clamp(crease * 0.3, 0.0, 1.0));
-  shade *= mix(0.9, 1.0, cos(clamp(tilt * 0.35, 0.0, 1.1)));
+  float shade = mix(1.0, 0.5, clamp(crease * 0.42, 0.0, 1.0));
+  shade *= mix(0.78, 1.0, cos(clamp(tilt * 0.4, 0.0, 1.15)));
   vShade = mix(1.0, shade, k);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
@@ -106,6 +106,13 @@ varying vec2 vUv;
 varying float vShade;
 varying float vDepth;
 
+void foldLine(float d, float valleySharp, float ridgeSharp, inout float valley, inout float ridge) {
+  float v = exp(-abs(d) * valleySharp);
+  float s = exp(-abs(d) * ridgeSharp);
+  valley += v;
+  ridge += max(s - v, 0.0);
+}
+
 void main() {
   vec4 texel = texture2D(uMap, vUv);
   float k = 1.0 - uProgress;
@@ -113,13 +120,37 @@ void main() {
     if (texel.a < 0.02) discard;
     vec3 paper = texture2D(uPaper, vUv).rgb;
     float lum = dot(paper, vec3(0.2126, 0.7152, 0.0722));
-    float crease = smoothstep(0.28, 0.56, lum);
-    float wrinkle = mix(0.62, 1.0, crease);
+    float n = clamp((lum - 0.28) / 0.28, 0.0, 1.0);
+    n = n * n * (3.0 - 2.0 * n);
+    float wrinkle = mix(0.42, 1.12, n);
     float slope = length(vec2(dFdx(lum), dFdy(lum)));
-    wrinkle *= mix(1.0, 0.72, clamp(slope * 28.0, 0.0, 1.0));
-    float amount = mix(0.45, 1.0, vDepth);
+    wrinkle *= mix(1.0, 0.62, clamp(slope * 36.0, 0.0, 1.0));
+    float amount = mix(0.25, 1.0, vDepth);
     texel.rgb *= mix(1.0, wrinkle, k * amount);
+
+    float valley = 0.0;
+    float ridge = 0.0;
+    float y1 = 0.42 + 0.022 * sin(vUv.x * 8.5);
+    float y2 = 0.24 + 0.018 * sin(vUv.x * 6.4 + 1.1);
+    float y3 = 0.10 + 0.012 * sin(vUv.x * 11.0);
+    foldLine(vUv.y - y1, 130.0, 46.0, valley, ridge);
+    foldLine(vUv.y - y2, 145.0, 52.0, valley, ridge);
+    foldLine(vUv.y - y3, 160.0, 58.0, valley, ridge);
+    float side = 1.0 - smoothstep(0.52, 0.62, vUv.y);
+    float x1 = 0.14 + 0.012 * sin(vUv.y * 8.0);
+    float x2 = 0.84 + 0.014 * sin(vUv.y * 8.0 + 1.7);
+    float sideValley = 0.0;
+    float sideRidge = 0.0;
+    foldLine(vUv.x - x1, 100.0, 36.0, sideValley, sideRidge);
+    foldLine(vUv.x - x2, 100.0, 36.0, sideValley, sideRidge);
+    valley += sideValley * side;
+    ridge += sideRidge * side;
+    float weight = vDepth;
+    float ink = clamp(valley, 0.0, 1.0) * weight;
+    float hi = clamp(ridge, 0.0, 1.0) * weight;
+    texel.rgb *= mix(1.0, mix(1.0, 0.34, ink), k);
     texel.rgb *= vShade;
+    texel.rgb += hi * 0.22 * k;
   }
   gl_FragColor = texel;
   #include <colorspace_fragment>
