@@ -1,0 +1,18 @@
+{
+  "photo": "public/me.webp",
+  "size": [570, 657],
+  "runs": 2,
+  "screenshotsIdentical": true,
+  "progress1": {
+    "alignedMae255": 0.12409766170881287,
+    "shift": [0, 0],
+    "figureMae255": 0.20220481957463743,
+    "interiorMae255": 0
+  },
+  "progress0.5": {
+    "mae255": 97.81050851380078,
+    "figureMae255": 159.58497881322134,
+    "bestShift": [0, 3],
+    "alignedMae255": 97.33755476867478
+  }
+}
