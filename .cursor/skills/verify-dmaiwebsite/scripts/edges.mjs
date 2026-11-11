@@ -11,6 +11,7 @@ const shots = path.join(root, 'artifacts', 'verify-dmaiwebsite', 'edges')
 const url = process.env.VERIFY_URL ?? 'http://127.0.0.1:5199/'
 
 const viewports = [
+  { name: '320x568', width: 320, height: 568 },
   { name: '320', width: 320, height: 700 },
   { name: '375', width: 375, height: 812 },
   { name: '390', width: 390, height: 844 },
@@ -166,11 +167,26 @@ function judge(normal, hidden, geo) {
   }
 
   const problems = []
-  if (tried < 8) problems.push(`only ${tried} shirt columns met the stroke`)
-  if (gaps > Math.floor(tried * 0.08)) problems.push(`paper gap in ${gaps} of ${tried} columns`)
-  if (below > Math.floor(tried * 0.08)) problems.push(`photo below the stroke in ${below} of ${tried} columns`)
-  if (covered < Math.max(8, Math.ceil(tried * 0.9))) {
-    problems.push(`ink covers the shirt in ${covered} of ${tried} columns`)
+  const innerTop = geo.frame.y + geo.inset
+  const innerBottom = geo.frame.y + geo.frame.height - geo.inset
+  if (geo.titleTop < innerTop - 1) {
+    problems.push(`heading leaves the frame, title ${Math.round(geo.titleTop)} inner ${Math.round(innerTop)}`)
+  }
+  if (geo.paraScroll > geo.paraClient + 1) {
+    problems.push(`paragraph is clipped, scrollHeight ${geo.paraScroll} vs clientHeight ${geo.paraClient}`)
+  }
+  const photoBottom = geo.photo.y + geo.photo.height
+  const frameBottom = geo.frame.y + geo.frame.height
+  const overlap = Math.min(photoBottom, frameBottom) - Math.max(geo.photo.y, geo.frame.y)
+  if (overlap >= 8) {
+    if (tried < 8) problems.push(`only ${tried} shirt columns met the stroke`)
+    if (gaps > Math.floor(tried * 0.08)) problems.push(`paper gap in ${gaps} of ${tried} columns`)
+    if (below > Math.floor(tried * 0.08)) problems.push(`photo below the stroke in ${below} of ${tried} columns`)
+    if (covered < Math.max(8, Math.ceil(tried * 0.9))) {
+      problems.push(`ink covers the shirt in ${covered} of ${tried} columns`)
+    }
+  } else if (geo.paraBottom < innerBottom - 24) {
+    problems.push('photo row collapsed with room under the paragraph')
   }
   if (problems.length && samples.length) problems.push(samples.join('; '))
   return { tried, covered, gaps, below, problems }
@@ -194,9 +210,17 @@ async function shoot(page) {
       const r = el.getBoundingClientRect()
       return { x: r.x, y: r.y, width: r.width, height: r.height }
     }
+    const reveal = document.querySelector('.about-reveal')
+    const para = document.querySelector('.about-copy p')
+    const inset = parseFloat(getComputedStyle(reveal).getPropertyValue('--ink-inset')) || 0
     return {
-      frame: box(document.querySelector('.about-reveal')),
+      frame: box(reveal),
       photo: box(document.querySelector('.about-photo')),
+      titleTop: document.querySelector('.about-title').getBoundingClientRect().y,
+      paraBottom: para.getBoundingClientRect().bottom,
+      paraScroll: para.scrollHeight,
+      paraClient: para.clientHeight,
+      inset,
     }
   })
   const normal = decodePNG(await page.screenshot())

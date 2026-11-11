@@ -8,7 +8,7 @@ About fades in as its top edge moves from near the bottom of the viewport to the
 - `about-copy` shows the heading `ABOUT ME`, the paragraph that begins `I'm a software engineer interested in ai`, and the photo `Danny holding a pastry`.
 - `about-snap` does not hold an 18% target. That scroll lands on the About start, where the section is already fully opaque.
 - `about-reduced` keeps opacity at 1, including at the 96% position.
-- `about-tuck` puts the bottom of the cutout under the frame's bottom ink. The stroke there is ink-colored, the shirt touches that ink with no paper between them, and the cutout does not continue below the stroke.
+- `about-tuck` puts the bottom of the cutout under the frame's bottom ink. The stroke there is ink-colored, the shirt touches that ink with no paper between them, and the cutout does not continue below the stroke. The heading's top stays at or below the frame's inner top edge. The paragraph is not clipped (`scrollHeight` stays within a pixel of `clientHeight`). When the type fills a short frame, the photo may leave with the overflow and the shirt checks wait.
 
 ## How to get to it (user POV)
 
@@ -51,7 +51,7 @@ The tuck is a separate pass from the fade. From the repo root:
 .cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
 ```
 
-It exits 0 only when `about-tuck` holds in Chromium and WebKit at 320, 375, 390, 430, iPad 768×1024, and 1440×900, with fonts loaded, with Google Fonts blocked, and with the root font size at 150%. Each case screenshots About at the top of the viewport, then again with the cutout hidden. A column counts when the shirt comes within 6px of the bottom stroke. The hem passes when at least 90% of those columns show ink (and that ink changes once the cutout is hidden), with no paper between the shirt and the ink, and no shirt pixel below the stroke. A few antialiased columns at the side of the torso do not fail the hem. `artifacts/verify-dmaiwebsite/edges/edges.json` records every case.
+It exits 0 only when `about-tuck` holds in Chromium and WebKit at 320×568, 320×700, 375, 390, 430, iPad 768×1024, and 1440×900, with fonts loaded, with Google Fonts blocked, and with the root font size at 150%. Each case screenshots About at the top of the viewport, then again with the cutout hidden. A column counts when the shirt comes within 6px of the bottom stroke. The hem passes when at least 90% of those columns show ink (and that ink changes once the cutout is hidden), with no paper between the shirt and the ink, and no shirt pixel below the stroke. A few antialiased columns at the side of the torso do not fail the hem. The heading's top is at or below the inner edge of the ink, and the paragraph's `scrollHeight` is at most `clientHeight + 1`. `artifacts/verify-dmaiwebsite/edges/edges.json` records every case.
 
 ## Gotchas
 
