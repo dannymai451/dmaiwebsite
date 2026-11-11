@@ -1,9 +1,7 @@
-import './Experience.css'
-
 export default function Experience() {
   return (
-    <section className="exp">
-      <div className="exp-box" />
+    <section className="stage experience">
+      <div className="stage-box" />
     </section>
   )
 }

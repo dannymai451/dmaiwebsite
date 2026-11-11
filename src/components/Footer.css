@@ -1,3 +1,8 @@
+/*
+  Fixed behind .page. The slot is the in-flow spacer that scrolls this
+  layer into view. The inner box size comes from stage.css.
+*/
+
 .foot {
   position: fixed;
   left: 0;
@@ -7,7 +12,7 @@
   height: 100dvh;
   z-index: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background: #fff;
   overflow: hidden;
@@ -19,22 +24,8 @@
   scroll-snap-align: start;
 }
 
-.foot-box {
-  position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
-  height: min(100vh, calc(100vw * 9 / 16));
-  container-type: size;
-  overflow: hidden;
-}
-
-@media (orientation: portrait) {
+@media (orientation: landscape) {
   .foot {
-    align-items: flex-start;
-  }
-
-  .foot-box {
-    width: 100vw;
-    height: 100vh;
-    height: 100svh;
+    align-items: center;
   }
 }

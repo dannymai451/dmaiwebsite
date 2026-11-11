@@ -12,10 +12,11 @@
   position: absolute;
   z-index: -1;
   background: #fff;
-  left: 5.2%;
-  top: 5.2%;
-  right: 5.2%;
-  bottom: 5.2%;
+  /* Fallback before canvas layout; JS sets px inset inside the ink border. */
+  left: 7%;
+  top: 7%;
+  right: 7%;
+  bottom: 7%;
 }
 
 .panel-frame canvas {

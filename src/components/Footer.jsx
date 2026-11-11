@@ -5,7 +5,7 @@ export default function Footer() {
     <>
       <div className="foot-slot" aria-hidden="true" />
       <footer className="foot">
-        <div className="foot-box" />
+        <div className="stage-box" />
       </footer>
     </>
   )

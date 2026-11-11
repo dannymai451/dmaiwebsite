@@ -60,18 +60,24 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
 
       const margin = Math.round(Math.min(w, h) * 0.052)
       const scale = Math.min(w, h) / 1080
-      const width = 7 * scale
-      const reach = Math.ceil(width * 0.65 + 3)
-      const edge = Math.max(0, margin - reach)
+      const stroke = 7 * scale
+      const amp = 1.6 * scale
+      const innerPad = Math.ceil(stroke * 0.5 + amp + 2)
+      const inset = margin + innerPad
+      // Innermost reach of the wobbly stroke. Content that stops here
+      // touches the line and stays inside it.
+      const inkInner = margin + Math.ceil(stroke * 0.5 + amp * 1.5)
       const strip = margin + Math.ceil(14 * scale)
 
       fill.style.background = paper
-      fill.style.left = `${edge}px`
-      fill.style.top = `${edge}px`
+      fill.style.left = `${inset}px`
+      fill.style.top = `${inset}px`
       fill.style.right = 'auto'
       fill.style.bottom = 'auto'
-      fill.style.width = `${Math.max(0, w - edge * 2)}px`
-      fill.style.height = `${Math.max(0, h - edge * 2)}px`
+      fill.style.width = `${Math.max(0, w - inset * 2)}px`
+      fill.style.height = `${Math.max(0, h - inset * 2)}px`
+      host.parentElement?.style.setProperty('--ink-inset', `${inset}px`)
+      host.parentElement?.style.setProperty('--ink-inner', `${inkInner}px`)
 
       const pts = []
       const corners = [
@@ -115,11 +121,11 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
         ctx.setTransform(dpr, 0, 0, dpr, -x * dpr, -y * dpr)
         ctx.clearRect(x, y, sw, sh)
         inkBorder(ctx, pts, {
-          width,
+          width: stroke,
           color: '#1a1212',
           alpha: 0.95,
           seed: 830,
-          amp: 1.6 * scale,
+          amp,
         })
       })
     }

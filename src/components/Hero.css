@@ -1,19 +1,4 @@
-.hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  scroll-snap-align: start;
-}
-
 .hero-box {
-  position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
-  height: min(100vh, calc(100vw * 9 / 16));
-  container-type: size;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,6 +50,12 @@
   transform: scale(1.22);
 }
 
+.hero-links a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .hero-links svg {
   display: block;
   height: 100%;
@@ -111,16 +102,8 @@
   .hero-intro {
     animation: none;
   }
-}
 
-@media (orientation: portrait) {
-  .hero {
-    align-items: flex-start;
-  }
-
-  .hero-box {
-    width: 100vw;
-    height: 100vh;
-    height: 100svh;
+  .hero-links a {
+    transition: none;
   }
 }

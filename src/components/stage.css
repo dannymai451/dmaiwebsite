@@ -1,0 +1,38 @@
+/*
+  Shared full-viewport shell for Hero, Experience, Projects, and the footer box.
+
+  Portrait is the default: the inner box fills the screen and sits at the top.
+  Landscape, including a phone held sideways, restores the centered 16:9 frame.
+  A square viewport stays with the portrait rules.
+*/
+
+.stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.stage-box {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  container-type: size;
+  overflow: hidden;
+}
+
+@media (orientation: landscape) {
+  .stage {
+    align-items: center;
+  }
+
+  .stage > .stage-box,
+  .foot > .stage-box {
+    width: min(100vw, calc(100vh * 16 / 9));
+    height: min(100vh, calc(100vw * 9 / 16));
+  }
+}

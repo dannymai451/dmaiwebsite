@@ -1,9 +1,21 @@
 :root {
-  background-color: #fff;
-  background-image:
+  --paper-image:
     linear-gradient(to right, #e5e4e7 1px, transparent 1px),
     linear-gradient(to bottom, #e5e4e7 1px, transparent 1px);
+}
+
+/* The page repeats the grid because background-image does not inherit.
+   .page is an opaque sheet (z-index: 1) over the fixed footer. */
+:root,
+.page {
+  background-color: #fff;
+  background-image: var(--paper-image);
   background-size: 32px 32px;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
 }
 
 html {

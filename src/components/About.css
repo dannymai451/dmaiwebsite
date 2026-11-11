@@ -1,5 +1,14 @@
+/*
+  About uses its own shell. It is full-bleed in portrait and at 800px or
+  narrower, and only picks up the 16:9 frame in landscape wider than 800px.
+  The side-by-side vs stacked layout is decided by the frame's own aspect
+  ratio (the container query below), not by the viewport.
+*/
+
 .about {
   min-height: 100vh;
+  min-height: 100svh;
+  height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,35 +19,62 @@
 
 .about-box {
   position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
-  height: min(100vh, calc(100vw * 9 / 16));
-  container-type: size;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.about-copy {
+.about-reveal {
   position: relative;
+  width: calc(100% - 1.5rem);
+  height: calc(100% - 1.5rem);
+  container: about-frame / size;
+  opacity: 0;
+}
+
+/* Type stays padded inside the border. The photo column runs down to the
+   inner edge of the ink (--ink-inset, measured by Frame) so the cutout
+   sits on the bottom of the frame without crossing the stroke. */
+.about-layout {
+  --frame-pad: 13cqmin;
+  position: absolute;
+  top: var(--frame-pad);
+  right: var(--frame-pad);
+  bottom: var(--ink-inset, 7cqmin);
+  left: var(--frame-pad);
   z-index: 1;
-  box-sizing: border-box;
-  width: 100%;
-  padding-inline: 12cqi;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  align-items: stretch;
+  column-gap: 5cqmin;
+  min-width: 0;
+  min-height: 0;
+}
+
+.about-copy {
+  align-self: center;
+  /* The photo column is taller than the old even inset. This keeps the
+     type on its previous vertical center. */
+  margin-bottom: calc(var(--frame-pad) - var(--ink-inset, 7cqmin));
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .about-title {
   position: relative;
   width: fit-content;
+  max-width: 100%;
   margin: 0;
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: clamp(3.4rem, 11cqi, 7.2rem);
-  line-height: 0.78;
+  font-size: clamp(2.5rem, 16cqmin, 5.1rem);
+  line-height: 0.8;
   letter-spacing: 0.02em;
   color: #1a1a1a;
   transform: rotate(-1.6deg);
@@ -61,24 +97,94 @@
 }
 
 .about-copy p {
-  max-width: 36rem;
-  margin: 1.85rem 0 0;
+  max-width: 36em;
+  margin: 1.15rem 0 0;
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  font-size: clamp(1.05rem, 2.25cqi, 1.32rem);
+  font-size: clamp(0.98rem, 3.6cqmin, 1.2rem);
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.55;
   color: #241818;
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
-@media (orientation: portrait) {
+.about-photo-slot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+.about-photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right bottom;
+  /* Drop from the paper edge onto the inside of the bottom stroke. */
+  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-inner, var(--ink-inset, 0px))));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-reveal {
+    opacity: 1;
+  }
+}
+
+/* Tall frames: type above, portrait planted on the bottom border.
+   The photo row only gets the space left under the type, and the cutout
+   is contained inside that row so it cannot leave the frame. */
+@container about-frame (max-aspect-ratio: 1) {
+  .about-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+    row-gap: 5cqmin;
+  }
+
+  .about-copy {
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+  .about-title {
+    font-size: clamp(2.4rem, 14cqmin, 4.2rem);
+  }
+
+  .about-copy p {
+    margin-top: 0.85rem;
+  }
+
+  .about-photo-slot {
+    width: min(100%, 22rem);
+    height: 100%;
+    max-height: 100%;
+    aspect-ratio: auto;
+    justify-self: center;
+    align-self: end;
+  }
+
+  .about-photo {
+    object-position: center bottom;
+  }
+}
+
+@media (orientation: landscape) and (width > 800px) {
   .about {
-    align-items: flex-start;
+    height: auto;
   }
 
   .about-box {
-    width: 100vw;
-    height: 100vh;
-    height: 100svh;
+    width: min(100vw, calc(100svh * 16 / 9));
+    height: min(100svh, calc(100vw * 9 / 16));
+  }
+
+  .about-reveal {
+    width: 88%;
+    height: 84%;
   }
 }
