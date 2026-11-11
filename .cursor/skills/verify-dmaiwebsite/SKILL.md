@@ -109,6 +109,24 @@ Each JSON file records the action and the resulting state: the scroll that was r
 
 The driver fails the run on any console error or page error.
 
+## Phone bars
+
+Desktop `drive.mjs` cannot see the phone-toolbar bugs. In this Playwright Chromium and WebKit, `100lvh`, `100dvh`, `100svh`, and `innerHeight` are one length, so `bottom: calc(100lvh - 100dvh)` computes to 0. Run this after any change to the hero anchor, on the same server:
+
+```bash
+npx playwright install webkit
+.cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
+```
+
+`pass` exits 0 only when Chromium and WebKit both keep the row on the visible bottom with a 70% peek in four simulated conditions, and the desktop page at 1440x900 is still 315px tall with the figure top at 679.5. The script rewrites `100lvh`, `100dvh`, and `100svh` as each stylesheet is inserted. That is the viewport-unit override. It also lays a translucent bar over the page and replaces `visualViewport.offsetTop`.
+
+1. Brave, solid toolbar. The visible viewport is 789px and `100lvh` is 844px, so `lvh - dvh` is 55px. The layout bottom is the visible bottom.
+2. Safari, translucent toolbar. A 55px overlay sits on the bottom of an 844px viewport and the figures paint under it. The row stays on the screen bottom; the lower part of the heads shows through the bar.
+3. Rubber-band. `visualViewport.offsetTop` is `-90`, and a scroll event is dispatched. The row does not move.
+4. Scroll down to 40% of the hero, then back to the top. The row stays on the bottom while the tuck hides more of the figures. At the top, the peek is 70% again.
+
+Evidence lands in `artifacts/verify-dmaiwebsite/phone-bars/`. `phone-bars.mjs fail-brave` is the harness check: with the `0b5947b` anchor served, it exits 0 only when that rule lifts the row by about 55px. Do not leave that CSS in the working tree.
+
 ## Edges
 
 Check that the hero greeting and the contact links stay inside the white card, and that the three figures stay inside the left and right edges of the viewport. The figures are meant to hang below the bottom edge. A vertical overhang there is not a failure.
@@ -140,12 +158,13 @@ If `npm run test:e2e` started its own server because 5199 was free, that suite s
 
 ## Helpers
 
-All five scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
+All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 .cursor/skills/verify-dmaiwebsite/scripts/doctor.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
+.cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
 .cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/cleanup.sh
 ```
