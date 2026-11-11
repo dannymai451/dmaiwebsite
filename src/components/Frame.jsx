@@ -44,12 +44,16 @@ function inkBorder(ctx, pts, { width, color, alpha, seed, amp }) {
 
 export default function Frame({ paper = '#fff', width = '100%', height = '100%' }) {
   const ref = useRef(null)
+  const inkRef = useRef(null)
 
   useEffect(() => {
     const host = ref.current
-    if (!host) return
+    const ink = inkRef.current
+    if (!host || !ink) return
     const fill = host.querySelector('.panel-frame-fill')
-    const strips = [...host.querySelectorAll('canvas')]
+    const strips = [...ink.querySelectorAll('canvas')]
+    const slot = host.parentElement?.querySelector('.about-photo-slot')
+    let hem = null
 
     const draw = () => {
       const box = host.getBoundingClientRect()
@@ -67,6 +71,7 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
       // Innermost reach of the wobbly stroke. Content that stops here
       // touches the line and stays inside it.
       const inkInner = margin + Math.ceil(stroke * 0.5 + amp * 1.5)
+      const inkOuter = Math.max(0, margin - stroke * 0.5 + amp)
       const strip = margin + Math.ceil(14 * scale)
 
       fill.style.background = paper
@@ -78,6 +83,7 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
       fill.style.height = `${Math.max(0, h - inset * 2)}px`
       host.parentElement?.style.setProperty('--ink-inset', `${inset}px`)
       host.parentElement?.style.setProperty('--ink-inner', `${inkInner}px`)
+      host.parentElement?.style.setProperty('--ink-outer', `${inkOuter}px`)
 
       const pts = []
       const corners = [
@@ -104,8 +110,7 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
         [w - strip, strip, strip, h - 2 * strip],
       ]
 
-      strips.forEach((canvas, i) => {
-        const [x, y, sw, sh] = rects[i]
+      const paint = (canvas, x, y, sw, sh, left, top) => {
         if (sw <= 0 || sh <= 0) {
           canvas.width = 0
           canvas.height = 0
@@ -113,8 +118,8 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
         }
         canvas.width = Math.round(sw * dpr)
         canvas.height = Math.round(sh * dpr)
-        canvas.style.left = `${x}px`
-        canvas.style.top = `${y}px`
+        canvas.style.left = `${left}px`
+        canvas.style.top = `${top}px`
         canvas.style.width = `${sw}px`
         canvas.style.height = `${sh}px`
         const ctx = canvas.getContext('2d')
@@ -127,7 +132,26 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
           seed: 830,
           amp,
         })
+      }
+
+      strips.forEach((canvas, i) => {
+        const [x, y, sw, sh] = rects[i]
+        paint(canvas, x, y, sw, sh, x, y)
       })
+
+      // The slot clips this copy of the bottom stroke, so it covers the shirt
+      // and leaves the type in the layout's original stacking context.
+      if (slot) {
+        if (!hem) {
+          hem = document.createElement('canvas')
+          hem.className = 'panel-frame-hem'
+          slot.appendChild(hem)
+        }
+        const [x, y, sw, sh] = rects[1]
+        const frameBox = host.getBoundingClientRect()
+        const slotBox = slot.getBoundingClientRect()
+        paint(hem, x, y, sw, sh, frameBox.left - slotBox.left + x, frameBox.top - slotBox.top + y)
+      }
     }
 
     draw()
@@ -140,21 +164,22 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
     return () => {
       observer.disconnect()
       clearTimeout(timer)
+      hem?.remove()
     }
   }, [paper])
 
+  const frameStyle = { '--frame-width': width, '--frame-height': height }
   return (
-    <div
-      ref={ref}
-      className="panel-frame"
-      style={{ '--frame-width': width, '--frame-height': height }}
-      aria-hidden="true"
-    >
-      <div className="panel-frame-fill" />
-      <canvas />
-      <canvas />
-      <canvas />
-      <canvas />
-    </div>
+    <>
+      <div ref={ref} className="panel-frame" style={frameStyle} aria-hidden="true">
+        <div className="panel-frame-fill" />
+      </div>
+      <div ref={inkRef} className="panel-frame panel-frame-ink" style={frameStyle} aria-hidden="true">
+        <canvas />
+        <canvas />
+        <canvas />
+        <canvas />
+      </div>
+    </>
   )
 }

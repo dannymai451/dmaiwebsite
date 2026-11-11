@@ -35,9 +35,6 @@
   opacity: 0;
 }
 
-/* Type stays padded inside the border. The photo column runs down to the
-   inner edge of the ink (--ink-inset, measured by Frame) so the cutout
-   sits on the bottom of the frame without crossing the stroke. */
 .about-layout {
   --frame-pad: 13cqmin;
   position: absolute;
@@ -45,19 +42,24 @@
   right: var(--frame-pad);
   bottom: var(--ink-inset, 7cqmin);
   left: var(--frame-pad);
-  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
   align-items: stretch;
   column-gap: 5cqmin;
   min-width: 0;
   min-height: 0;
+  z-index: 1;
+}
+
+.about-photo-slot .panel-frame-hem {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .about-copy {
+  z-index: 3;
   align-self: center;
-  /* The photo column is taller than the old even inset. This keeps the
-     type on its previous vertical center. */
   margin-bottom: calc(var(--frame-pad) - var(--ink-inset, 7cqmin));
   min-width: 0;
   display: flex;
@@ -109,21 +111,24 @@
 
 .about-photo-slot {
   position: relative;
+  z-index: 1;
   min-width: 0;
   min-height: 0;
-  overflow: visible;
+  overflow: hidden;
+  height: calc(100% + var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px)));
+  margin-bottom: calc(var(--ink-outer, var(--ink-inset, 0px)) - var(--ink-inset, 0px));
 }
 
 .about-photo {
   position: absolute;
   inset: 0;
+  bottom: auto;
   display: block;
   width: 100%;
-  height: 100%;
+  height: calc(100% - (var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   object-fit: contain;
   object-position: right bottom;
-  /* Drop from the paper edge onto the inside of the bottom stroke. */
-  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-inner, var(--ink-inset, 0px))));
+  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -135,13 +140,10 @@
   }
 }
 
-/* Tall frames: type above, portrait planted on the bottom border.
-   The photo row only gets the space left under the type, and the cutout
-   is contained inside that row so it cannot leave the frame. */
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(24cqmin, 1fr);
     align-content: stretch;
     row-gap: 5cqmin;
   }
@@ -149,6 +151,7 @@
   .about-copy {
     align-self: start;
     margin-bottom: 0;
+    max-height: calc(100cqh - var(--frame-pad) - var(--ink-inset, 7cqmin) - 24cqmin - 5cqmin);
   }
 
   .about-title {
@@ -157,12 +160,12 @@
 
   .about-copy p {
     margin-top: 0.85rem;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .about-photo-slot {
     width: min(100%, 22rem);
-    height: 100%;
-    max-height: 100%;
     aspect-ratio: auto;
     justify-self: center;
     align-self: end;
@@ -170,6 +173,19 @@
 
   .about-photo {
     object-position: center bottom;
+  }
+}
+
+/* Only a frame this narrow. One more pixel at a normal 320 puts the shirt past the stroke. */
+@container about-frame (max-width: 290px) {
+  .about-photo-slot {
+    height: calc(100% + var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px)) + 1.5px);
+    margin-bottom: calc(var(--ink-outer, var(--ink-inset, 0px)) - var(--ink-inset, 0px) - 1.5px);
+  }
+
+  .about-photo {
+    height: calc(100% - (var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))) - 1.5px);
+    transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px)) + 1.5px));
   }
 }
 
