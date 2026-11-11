@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { CustomEase } from 'gsap/CustomEase'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -19,8 +19,57 @@ const HOPTIMISTS = [
   { src: '/hoptimist-3.webp', alt: 'Red hoptimist' },
 ]
 
+function syncFigureCrop(root) {
+  const row = root.querySelector('.hero-hoptimists')
+  const frame = root.querySelector('.panel-frame')
+  if (!row || !frame) return
+  const vv = window.visualViewport
+  const layoutHeight = document.documentElement.clientHeight
+  // bottom: 0 is the layout viewport. Safari's toolbar covers the bottom of it.
+  const inset = vv && vv.scale <= 1.01 ? Math.max(0, layoutHeight - vv.height - vv.offsetTop) : 0
+  row.style.setProperty('--browser-bottom', `${inset}px`)
+
+  if (!window.matchMedia('(orientation: portrait)').matches) {
+    row.style.removeProperty('--h')
+    return
+  }
+  const inkEdge = Number.parseFloat(getComputedStyle(frame.parentElement).getPropertyValue('--ink-edge'))
+  if (!Number.isFinite(inkEdge)) return
+  const visibleBottom = vv ? vv.height : window.innerHeight
+  const gap = visibleBottom - (frame.getBoundingClientRect().bottom - inkEdge)
+  if (!(gap > 0)) return
+  const styles = getComputedStyle(row)
+  const keep = Number(styles.getPropertyValue('--screen-keep'))
+  const above = Number(styles.getPropertyValue('--desktop-above-frame'))
+  const figure = Number(styles.getPropertyValue('--desktop-figure'))
+  const join = Number(styles.getPropertyValue('--join'))
+  const strip = keep - above / figure
+  const cap = window.innerWidth / (3 - 4 * join)
+  row.style.setProperty('--h', `${Math.min(gap / strip, cap)}px`)
+}
+
 export default function Hero() {
   const heroRef = useRef(null)
+
+  useLayoutEffect(() => {
+    const root = heroRef.current
+    if (!root) return
+    const sync = () => syncFigureCrop(root)
+    sync()
+    const frame = root.querySelector('.panel-frame')
+    const observer = new ResizeObserver(sync)
+    if (frame) observer.observe(frame)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', sync)
+    vv?.addEventListener('scroll', sync)
+    window.addEventListener('resize', sync)
+    return () => {
+      observer.disconnect()
+      vv?.removeEventListener('resize', sync)
+      vv?.removeEventListener('scroll', sync)
+      window.removeEventListener('resize', sync)
+    }
+  }, [])
 
   useGSAP(
     () => {

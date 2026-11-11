@@ -63,15 +63,27 @@
 
 .hero-hoptimists {
   --h: min(35vh, 22.4vw);
+  /* Desktop at 1440x900. The screen keeps 70% of the figure.
+     The frame line crosses 99px down that 315px figure. */
+  --screen-keep: 0.7;
+  --desktop-above-frame: 99;
+  --desktop-figure: 315;
+  /* Each figure overlaps its neighbor by this share of --h on both sides.
+     Two joins, so the row is 3 - 4 * --join heights wide. */
+  --join: 0.16;
+  --browser-bottom: 0px;
   position: fixed;
   left: 50%;
-  bottom: 0;
+  bottom: var(--browser-bottom);
   z-index: 2;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   transform: translateX(-50%);
   pointer-events: none;
+  /* Clip the part that slides below the visible bottom. A see-through
+     Safari toolbar would otherwise show it. Side room keeps the drop shadow. */
+  clip-path: inset(-32px -24px 0 -24px);
   /* 0 to 1 as the hero scrolls away. GSAP ScrollTrigger drives it. */
   --tuck: 0;
 }
@@ -81,23 +93,14 @@
   --pop: 0;
   height: var(--h);
   width: auto;
-  margin-inline: calc(var(--h) * -0.16);
-  transform: translateY(calc(100% - 70% * var(--pop) * (1 - var(--tuck))));
+  margin-inline: calc(var(--h) * var(--join) * -1);
+  transform: translateY(calc(100% - var(--screen-keep) * 100% * var(--pop) * (1 - var(--tuck))));
   filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.16));
 }
 
 .hero-hoptimists img:nth-child(2) {
   position: relative;
   z-index: 1;
-}
-
-/* The screen hides the bottom 30% on every viewport. On desktop the frame
-   line sits 121.5px above that cut, 27/70 of the 315px figure. Portrait
-   grows the figure until the phone's frame-to-screen strip is that same share. */
-@media (orientation: portrait) {
-  .hero-hoptimists {
-    --h: min(42vw, calc((5svh + 4.68vw + 0.292vw) * 70 / 27));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
