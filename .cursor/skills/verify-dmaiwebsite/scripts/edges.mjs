@@ -56,7 +56,14 @@ function measure() {
   }
 }
 
-async function openPage(browserType, viewport, blockFont) {
+const modes = [
+  { name: 'loaded', blockFont: false },
+  { name: 'loading', blockFont: true },
+  { name: 'zoom125', blockFont: false, zoomPx: 20 },
+  { name: 'zoom150', blockFont: false, zoomPx: 24 },
+]
+
+async function openPage(browserType, viewport, mode) {
   const browser = await browserType.launch()
   const context = await browser.newContext({
     viewport,
@@ -64,7 +71,7 @@ async function openPage(browserType, viewport, blockFont) {
     isMobile: viewport.width < 900,
     hasTouch: viewport.width < 900,
   })
-  if (blockFont) {
+  if (mode.blockFont) {
     await context.route('**/*fonts.gstatic.com/**', (route) => route.abort())
     await context.route('**/*fonts.googleapis.com/**', (route) => route.abort())
   }
@@ -77,11 +84,17 @@ async function openPage(browserType, viewport, blockFont) {
     const heading = document.querySelector('.hero-greeting')
     return fill && heading && fill.style.width.endsWith('px') && parseFloat(fill.style.width) > 40
   })
-  if (!blockFont) {
+  if (!mode.blockFont) {
     await page.evaluate(() => document.fonts.load('700 64px Caveat').catch(() => {}))
     await page.waitForTimeout(200)
   } else {
     await page.waitForTimeout(150)
+  }
+  if (mode.zoomPx) {
+    await page.evaluate((px) => {
+      document.documentElement.style.fontSize = `${px}px`
+    }, mode.zoomPx)
+    await page.waitForTimeout(100)
   }
   await page.evaluate(
     () =>
@@ -113,16 +126,15 @@ const rows = []
 let failed = 0
 for (const browser of browsers) {
   for (const size of widths) {
-    for (const blockFont of [false, true]) {
-      const mode = blockFont ? 'loading' : 'loaded'
-      const { box, errors } = await openPage(browser.type, size, blockFont)
+    for (const mode of modes) {
+      const { box, errors } = await openPage(browser.type, size, mode)
       const hits = crossed(box)
       if (errors.length) hits.push(`pageerror ${errors[0]}`)
       if (hits.length) failed += 1
       const row = {
         browser: browser.name,
         width: size.label,
-        mode,
+        mode: mode.name,
         fontSize: box.fontSize,
         cardRight: +box.card.right.toFixed(2),
         greetingRight: +box.greeting.right.toFixed(2),
@@ -133,7 +145,7 @@ for (const browser of browsers) {
       rows.push(row)
       const mark = hits.length ? 'FAIL' : 'ok'
       console.log(
-        `${mark.padEnd(4)} ${browser.name.padEnd(9)} ${size.label.padEnd(5)} ${mode.padEnd(8)} pastRight=${row.pastRight} pastLeft=${row.pastLeft} greetingRight=${row.greetingRight} cardRight=${row.cardRight}`,
+        `${mark.padEnd(4)} ${browser.name.padEnd(9)} ${size.label.padEnd(5)} ${mode.name.padEnd(8)} pastRight=${row.pastRight} pastLeft=${row.pastLeft} greetingRight=${row.greetingRight} cardRight=${row.cardRight}`,
       )
       if (hits.length) console.log(`     ${hits.join('; ')}`)
     }

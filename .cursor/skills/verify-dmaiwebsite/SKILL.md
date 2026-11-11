@@ -141,6 +141,7 @@ The script does not start a server. It opens WebKit and Chromium at 320, 375, 39
 
 - `loaded` waits until Caveat has loaded, then measures.
 - `loading` aborts the Google Fonts requests, so the fallback face stays on screen. That is the face shown while Caveat is still loading.
+- `zoom125` and `zoom150` wait until that loaded layout has settled, then set the root font size to 20px or 24px. The card box does not change. A fit that only ran on the first layout fails here.
 
 A case fails when the greeting text or the contact links cross `.panel-frame-fill` by more than half a pixel on any side, or when a figure crosses the viewport's left or right edge by more than half a pixel. The script prints one line per case, writes `artifacts/verify-dmaiwebsite/edges.json`, and exits 1 when any case fails. A blocked font request is not a page error.
 
