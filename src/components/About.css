@@ -33,11 +33,17 @@
   height: calc(100% - 1.5rem);
   container: about-frame / size;
   opacity: 0;
+  overflow: hidden;
+}
+
+/* Paper stays behind the cutout. The bottom stroke is lifted over the
+   shirt by Frame, only along that strip, so the type is not covered. */
+.about-reveal .panel-frame-mat {
+  z-index: -1;
 }
 
 /* Type stays padded inside the border. The photo column runs down to the
-   inner edge of the ink (--ink-inset, measured by Frame) so the cutout
-   sits on the bottom of the frame without crossing the stroke. */
+   inner edge of the ink (--ink-inset, measured by Frame). */
 .about-layout {
   --frame-pad: 13cqmin;
   position: absolute;
@@ -112,21 +118,47 @@
   min-width: 0;
   min-height: 0;
   overflow: visible;
+  container-type: size;
+}
+
+.about-photo,
+.about-hem img {
+  display: block;
+  object-fit: contain;
+  object-position: right bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .about-photo {
   position: absolute;
   inset: 0;
-  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: right bottom;
   /* Drop from the paper edge onto the inside of the bottom stroke. */
   transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-inner, var(--ink-inset, 0px))));
+}
+
+/* The same cutout, shifted down so its bottom edge lands on the outer
+   reach of the stroke (--ink-outer). Clipped to the strip below the
+   unshifted photo, so the face stays put and only the hem moves. */
+.about-hem {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--ink-inset, 0px) - var(--ink-inner, 0px));
+  height: calc(var(--ink-inner, 0px) - var(--ink-outer, 0px));
+  overflow: hidden;
   pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
+}
+
+.about-hem img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100cqw;
+  height: 100cqh;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -135,14 +167,14 @@
   }
 }
 
-/* Tall frames: type above, portrait planted on the bottom border.
-   The photo row only gets the space left under the type, and the cutout
-   is contained inside that row so it cannot leave the frame. */
+/* Tall frames: type above, photo in the space left under the type. */
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    align-content: stretch;
+    /* Floor keeps the cutout in the frame when the root font grows.
+       At the normal size the leftover row is already taller. */
+    grid-template-rows: auto minmax(24cqmin, 1fr);
+    align-content: end;
     row-gap: 5cqmin;
   }
 
@@ -168,7 +200,8 @@
     align-self: end;
   }
 
-  .about-photo {
+  .about-photo,
+  .about-hem img {
     object-position: center bottom;
   }
 }

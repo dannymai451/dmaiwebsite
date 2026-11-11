@@ -109,6 +109,16 @@ Each JSON file records the action and the resulting state: the scroll that was r
 
 The driver fails the run on any console error or page error.
 
+## Edges
+
+The fade driver does not look at the cutout against the ink. After a change to that meeting point, run:
+
+```bash
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+```
+
+`VERIFY_URL` overrides the default `http://127.0.0.1:5199/`. The pass rule is `about-tuck` in `features/about.md`. The script uses Chromium and WebKit. It does not start a server.
+
 ## Phone bars
 
 Desktop `drive.mjs` cannot see the phone-toolbar bugs. In this Playwright Chromium and WebKit, `100lvh`, `100dvh`, `100svh`, and `innerHeight` are one length, so `bottom: calc(100lvh - 100dvh)` computes to 0. Run this after any change to the hero anchor, on the same server:
@@ -147,6 +157,7 @@ The scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executa
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 .cursor/skills/verify-dmaiwebsite/scripts/doctor.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
 .cursor/skills/verify-dmaiwebsite/scripts/cleanup.sh
 ```

@@ -31,7 +31,6 @@ export default function About() {
     <section className="about" ref={aboutRef} aria-labelledby="about-title">
       <div className="about-box">
         <div className="about-reveal" ref={revealRef}>
-          <Frame width="100%" height="100%" />
           <div className="about-layout">
             <div className="about-copy">
               <h2 className="about-title" id="about-title">
@@ -66,8 +65,12 @@ export default function About() {
                 alt="Danny holding a pastry"
                 draggable="false"
               />
+              <div className="about-hem" aria-hidden="true">
+                <img src="/me.webp" alt="" draggable="false" />
+              </div>
             </div>
           </div>
+          <Frame width="100%" height="100%" />
         </div>
       </div>
     </section>
