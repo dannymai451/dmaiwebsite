@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { gsap } from 'gsap'
 import { CustomEase } from 'gsap/CustomEase'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -12,23 +12,6 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, CustomEase)
 // CSS `ease` for the greeting fade, then cubic-bezier(0.2, 0.7, 0.2, 1) for the pop.
 const FADE_EASE = CustomEase.create('hero-fade', '0.25,0.1,0.25,1')
 const POP_EASE = CustomEase.create('hoptimist-pop', '0.2,0.7,0.2,1')
-
-// The line is nowrap and sized for Caveat. The fallback is wider than the card,
-// and the stage clips whatever crosses it. Shrink only in that case.
-function fitGreeting(heading, card) {
-  heading.style.fontSize = ''
-  const cardBox = card.getBoundingClientRect()
-  if (cardBox.width < 40) return
-  const text = heading.getBoundingClientRect()
-  const pad = 2
-  const leftOver = Math.max(cardBox.left + pad - text.left, 0)
-  const rightOver = Math.max(text.right - (cardBox.right - pad), 0)
-  if (leftOver + rightOver <= 0) return
-  const size = parseFloat(getComputedStyle(heading).fontSize)
-  const next = (size * (text.width - leftOver - rightOver)) / text.width
-  if (!(next > 0)) return
-  heading.style.fontSize = `${next}px`
-}
 
 const HOPTIMISTS = [
   { src: '/hoptimist-1.webp', alt: 'Blue hoptimist' },
@@ -67,28 +50,6 @@ export default function Hero() {
     },
     { scope: heroRef },
   )
-
-  useLayoutEffect(() => {
-    const root = heroRef.current
-    const heading = root?.querySelector('.hero-greeting')
-    const card = root?.querySelector('.panel-frame-fill')
-    if (!heading || !card) return undefined
-    let alive = true
-    const fit = () => {
-      if (alive) fitGreeting(heading, card)
-    }
-    fit()
-    const observer = new ResizeObserver(fit)
-    observer.observe(card)
-    document.fonts.addEventListener('loadingdone', fit)
-    document.fonts.ready.then(fit)
-    return () => {
-      alive = false
-      observer.disconnect()
-      document.fonts.removeEventListener('loadingdone', fit)
-      heading.style.fontSize = ''
-    }
-  }, [])
 
   return (
     <section className="stage hero" ref={heroRef}>
