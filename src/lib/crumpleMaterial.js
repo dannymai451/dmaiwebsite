@@ -9,48 +9,30 @@ import {
   Vector2,
 } from 'three'
 
+const foldParams = `
+void foldAt(int i, out float ang, out float off, out float amp) {
+  ang = 0.18; off = 0.315; amp = -0.366;
+  if (i == 1) { ang = 0.65; off = 0.225; amp = 0.489; }
+  if (i == 2) { ang = 1.12; off = 0.039; amp = -0.471; }
+  if (i == 3) { ang = 1.59; off = -0.209; amp = 0.324; }
+  if (i == 4) { ang = 2.06; off = -0.162; amp = -0.412; }
+  if (i == 5) { ang = 2.53; off = 0.078; amp = 0.499; }
+  if (i == 6) { ang = 3.00; off = 0.249; amp = -0.438; }
+  if (i == 7) { ang = 3.47; off = 0.319; amp = 0.290; }
+  if (i == 8) { ang = 3.94; off = 0.277; amp = -0.451; }
+  if (i == 9) { ang = 4.41; off = 0.130; amp = 0.497; }
+  if (i == 10) { ang = 4.88; off = -0.096; amp = -0.396; }
+  if (i == 11) { ang = 5.35; off = -0.278; amp = 0.343; }
+}
+`
+
 const vertexShader = `
 uniform float uProgress;
 uniform vec2 uPlane;
 varying vec2 vUv;
-varying float vShade;
+varying vec3 vView;
+varying vec2 vPlane;
 varying float vDepth;
-
-float hash(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.x + p3.y) * p3.z);
-}
-
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  float a = hash(i);
-  float b = hash(i + vec2(1.0, 0.0));
-  float c = hash(i + vec2(0.0, 1.0));
-  float d = hash(i + vec2(1.0, 1.0));
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
-
-vec3 bendY(vec3 p, float axis, float angle, float soft, inout float crease, inout float tilt) {
-  float d = p.y - axis;
-  float t = d / soft;
-  float th = tanh(t);
-  float ang = th * angle;
-  crease += (1.0 - th * th) * abs(angle);
-  tilt += abs(ang);
-  return vec3(p.x, axis + d * cos(ang), p.z + d * sin(ang));
-}
-
-vec3 bendX(vec3 p, float axis, float angle, float soft, inout float crease, inout float tilt) {
-  float d = p.x - axis;
-  float th = tanh(d / soft);
-  float ang = th * angle;
-  crease += (1.0 - th * th) * abs(angle);
-  tilt += abs(ang);
-  return vec3(axis + d * cos(ang), p.y, p.z + d * sin(ang));
-}
 
 float foldDepth(vec2 uv) {
   vec2 q = (uv - vec2(0.32, 0.80)) / vec2(0.26, 0.30);
@@ -58,43 +40,31 @@ float foldDepth(vec2 uv) {
   return mix(1.0, 0.12, face);
 }
 
+${foldParams}
+
 void main() {
   vUv = uv;
   float k = 1.0 - uProgress;
-  float h = uPlane.y;
-  float w = uPlane.x;
-  float span = min(w, h);
+  float span = min(uPlane.x, uPlane.y);
   float depth = foldDepth(uv);
   vDepth = depth;
-  float crease = 0.0;
-  float tilt = 0.0;
-  vec3 p = vec3(position.xy, 0.0);
-  float chest = (0.42 - 0.5) * h + sin(p.x / w * 8.5) * h * 0.022;
-  float hands = (0.24 - 0.5) * h + sin(p.x / w * 6.4 + 1.1) * h * 0.018;
-  float hem = (0.10 - 0.5) * h + sin(p.x / w * 11.0) * h * 0.012;
-  p = bendY(p, chest, 0.95 * depth, h * 0.065, crease, tilt);
-  p = bendY(p, hands, -0.85 * depth, h * 0.05, crease, tilt);
-  p = bendY(p, hem, 0.6 * depth, h * 0.042, crease, tilt);
-  float gate = 1.0 - smoothstep(0.52, 0.62, uv.y);
-  p = bendX(p, (0.14 - 0.5) * w, 0.7 * depth * gate, w * 0.07, crease, tilt);
-  p = bendX(p, (0.84 - 0.5) * w, -0.6 * depth * gate, w * 0.08, crease, tilt);
-
-  float e = 0.016;
-  vec2 nuv = uv * vec2(3.4, 4.2) + vec2(1.7, 0.4);
-  float n0 = noise(nuv);
-  float gx = (noise(nuv + vec2(e, 0.0)) - noise(nuv - vec2(e, 0.0))) / (2.0 * e);
-  float gy = (noise(nuv + vec2(0.0, e)) - noise(nuv - vec2(0.0, e))) / (2.0 * e);
-  vec2 nuv2 = uv * vec2(6.8, 7.4) + vec2(5.0, 1.2);
-  float hx = (noise(nuv2 + vec2(e, 0.0)) - noise(nuv2 - vec2(e, 0.0))) / (2.0 * e);
-  float hy = (noise(nuv2 + vec2(0.0, e)) - noise(nuv2 - vec2(0.0, e))) / (2.0 * e);
-  p.xy += (vec2(-gx, -gy) * 0.05 + vec2(-hx, -hy) * 0.018) * span * depth;
-  p.z += ((n0 - 0.5) * 0.22 + (noise(nuv2) - 0.5) * 0.08) * span * depth;
-
-  vec3 pos = position + (p - position) * k;
-  float shade = mix(1.0, 0.5, clamp(crease * 0.42, 0.0, 1.0));
-  shade *= mix(0.78, 1.0, cos(clamp(tilt * 0.4, 0.0, 1.15)));
-  vShade = mix(1.0, shade, k);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  vec3 disp = vec3(0.0);
+  for (int i = 0; i < 12; i++) {
+    float ang;
+    float off;
+    float amp;
+    foldAt(i, ang, off, amp);
+    vec2 n = vec2(cos(ang), sin(ang));
+    float d = dot(position.xy, n) - off * span;
+    float rot = step(0.0, d) * amp * depth * k;
+    disp.xy += n * d * (cos(rot) - 1.0) * 0.22;
+    disp.z += d * sin(rot);
+  }
+  vec3 pos = position + disp;
+  vPlane = position.xy;
+  vec4 view = modelViewMatrix * vec4(pos, 1.0);
+  vView = view.xyz;
+  gl_Position = projectionMatrix * view;
 }
 `
 
@@ -102,16 +72,13 @@ const fragmentShader = `
 uniform sampler2D uMap;
 uniform sampler2D uPaper;
 uniform float uProgress;
+uniform vec2 uPlane;
 varying vec2 vUv;
-varying float vShade;
+varying vec3 vView;
+varying vec2 vPlane;
 varying float vDepth;
 
-void foldLine(float d, float valleySharp, float ridgeSharp, inout float valley, inout float ridge) {
-  float v = exp(-abs(d) * valleySharp);
-  float s = exp(-abs(d) * ridgeSharp);
-  valley += v;
-  ridge += max(s - v, 0.0);
-}
+${foldParams}
 
 void main() {
   vec4 texel = texture2D(uMap, vUv);
@@ -120,37 +87,40 @@ void main() {
     if (texel.a < 0.02) discard;
     vec3 paper = texture2D(uPaper, vUv).rgb;
     float lum = dot(paper, vec3(0.2126, 0.7152, 0.0722));
-    float n = clamp((lum - 0.28) / 0.28, 0.0, 1.0);
-    n = n * n * (3.0 - 2.0 * n);
-    float wrinkle = mix(0.42, 1.12, n);
+    float gray = clamp((lum - 0.30) / 0.26, 0.0, 1.0);
+    gray = gray * gray * (3.0 - 2.0 * gray);
+    float wrinkle = mix(0.80, 1.06, gray);
     float slope = length(vec2(dFdx(lum), dFdy(lum)));
-    wrinkle *= mix(1.0, 0.62, clamp(slope * 36.0, 0.0, 1.0));
-    float amount = mix(0.25, 1.0, vDepth);
+    wrinkle *= mix(1.0, 0.72, clamp(slope * 32.0, 0.0, 1.0));
+    float amount = mix(0.3, 1.0, vDepth);
     texel.rgb *= mix(1.0, wrinkle, k * amount);
 
+    vec3 nrm = cross(dFdx(vView), dFdy(vView));
+    float nlen = length(nrm);
+    nrm = nlen > 1e-5 ? nrm / nlen : vec3(0.0, 0.0, 1.0);
+    if (nrm.z < 0.0) nrm = -nrm;
+    float ndl = dot(nrm, normalize(vec3(-0.28, 0.42, 0.86)));
+    float facet = mix(0.58, 1.16, clamp(ndl * 0.5 + 0.5, 0.0, 1.0));
+    texel.rgb *= mix(1.0, facet, k * mix(0.2, 1.0, vDepth));
+
+    float span = min(uPlane.x, uPlane.y);
     float valley = 0.0;
     float ridge = 0.0;
-    float y1 = 0.42 + 0.022 * sin(vUv.x * 8.5);
-    float y2 = 0.24 + 0.018 * sin(vUv.x * 6.4 + 1.1);
-    float y3 = 0.10 + 0.012 * sin(vUv.x * 11.0);
-    foldLine(vUv.y - y1, 130.0, 46.0, valley, ridge);
-    foldLine(vUv.y - y2, 145.0, 52.0, valley, ridge);
-    foldLine(vUv.y - y3, 160.0, 58.0, valley, ridge);
-    float side = 1.0 - smoothstep(0.52, 0.62, vUv.y);
-    float x1 = 0.14 + 0.012 * sin(vUv.y * 8.0);
-    float x2 = 0.84 + 0.014 * sin(vUv.y * 8.0 + 1.7);
-    float sideValley = 0.0;
-    float sideRidge = 0.0;
-    foldLine(vUv.x - x1, 100.0, 36.0, sideValley, sideRidge);
-    foldLine(vUv.x - x2, 100.0, 36.0, sideValley, sideRidge);
-    valley += sideValley * side;
-    ridge += sideRidge * side;
-    float weight = vDepth;
-    float ink = clamp(valley, 0.0, 1.0) * weight;
-    float hi = clamp(ridge, 0.0, 1.0) * weight;
-    texel.rgb *= mix(1.0, mix(1.0, 0.34, ink), k);
-    texel.rgb *= vShade;
-    texel.rgb += hi * 0.22 * k;
+    for (int i = 0; i < 12; i++) {
+      float ang;
+      float off;
+      float amp;
+      foldAt(i, ang, off, amp);
+      vec2 n = vec2(cos(ang), sin(ang));
+      float ad = abs(dot(vPlane, n) - off * span);
+      float v = exp(-ad * 0.16);
+      float s = exp(-ad * 0.055);
+      valley += v;
+      ridge += max(s - v, 0.0);
+    }
+    float weight = k * mix(0.18, 1.0, vDepth);
+    texel.rgb *= mix(1.0, 0.32, clamp(valley, 0.0, 1.0) * weight);
+    texel.rgb += clamp(ridge, 0.0, 1.0) * 0.26 * weight;
   }
   gl_FragColor = texel;
   #include <colorspace_fragment>
