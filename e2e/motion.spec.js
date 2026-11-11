@@ -13,7 +13,8 @@ const TUCK = [
 const ABOUT = [
   { at: 0.96, band: [0, 0.12], name: 'about-top-96' },
   { at: 0.57, band: [0.35, 0.65], name: 'about-top-57' },
-  { at: 0.18, band: [0.92, 1.01], name: 'about-top-18' },
+  // sine.inOut from top 96% to top 0% is about 0.916 when the section top is at 18%.
+  { at: 0.18, band: [0.9, 1.01], name: 'about-top-18' },
 ]
 
 function installProbe() {

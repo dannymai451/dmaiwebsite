@@ -94,7 +94,7 @@ Do not read animation-library state, CSS variable values, or timeline settings. 
 | Figures at 50% of the hero height | 0.90 to 1.08 |
 | About, section top at 96% of the viewport | 0 to 0.12 |
 | About, section top at 57% of the viewport | 0.35 to 0.65 |
-| About, section top at 18% of the viewport | 0.92 to 1.01 |
+| About, section top at 18% of the viewport | 0.90 to 1.01 |
 
 During the pop, the last figure is more hidden than the first by at least 0.15 at some sample. That is the stagger.
 
@@ -119,7 +119,7 @@ Write proof under `artifacts/verify-dmaiwebsite/`. The motion spec writes these 
 
 Also keep `playwright-report/index.html` and `test-results/**/trace.zip`.
 
-A correct run shows hidden fractions 0.30, 0.65, and 1.00 at the three hero scrolls, and About opacity 0, 0.5, and 1 at 96%, 57%, and 18%. Reduced motion shows greeting 1, figures 0.30, and About opacity 1 at the 96% position. Compare a new run to those values. The pass bands above are wider than one clean run, because a pixel of layout error should still pass.
+A correct run shows hidden fractions 0.30, 0.65, and 1.00 at the three hero scrolls, and About opacity 0, about 0.5, and about 0.92 at 96%, 57%, and 18%. The fade ends when the section top reaches the viewport top, so the 18% sample is not yet 1. Reduced motion shows greeting 1, figures 0.30, and About opacity 1 at the 96% position. Compare a new run to those values. The pass bands above are wider than one clean run, because a pixel of layout error should still pass.
 
 At the 96% About position the title is still below the fold. `about-top-96.png` shows the hero. The opacity number is the proof there. `about-top-18.png` shows the section on screen. The same split holds for the reduced-motion pair.
 

@@ -4,7 +4,7 @@ About fades in as its top edge moves from near the bottom of the viewport to nea
 
 ## Sub-features
 
-- `about-fade` is transparent when the section top is at 96% of the viewport, about half visible at 57%, and fully visible at 18% and higher.
+- `about-fade` is transparent when the section top is at 96% of the viewport, about half visible at 57%, and nearly fully visible at 18%. The fade finishes when the section top reaches the viewport top.
 - `about-copy` shows the heading `ABOUT ME` and one paragraph once the section is on screen.
 - `about-reduced` keeps opacity at 1, including at the 96% position where the fade would otherwise be transparent.
 
@@ -21,7 +21,7 @@ Preconditions:
 - Viewport is 1440x900.
 - Scroll snap is off for this page.
 
-- **Fade.** Run `npm run test:e2e`. In `motion.json`, the `about` rows are opacity 0 at 0.96, 0.5 at 0.57, and 1 at 0.18.
+- **Fade.** Run `npm run test:e2e`. In `motion.json`, the `about` rows are opacity 0 at 0.96, about 0.5 at 0.57, and about 0.92 at 0.18.
 - **Copy.** After the 18% position, the heading `ABOUT ME` is visible and the paragraph begins `I'm a software engineer interested in ai`.
 - **Reduced motion.** In `motion-reduced.json`, `aboutAt96` is 1.
 - **Proof.** Keep `about-top-96.png`, `about-top-57.png`, `about-top-18.png`, `reduced-about-top-96.png`, and `reduced-about-top-18.png`.
