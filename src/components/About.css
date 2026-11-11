@@ -33,13 +33,8 @@
   height: calc(100% - 1.5rem);
   container: about-frame / size;
   opacity: 0;
+  /* Katherine's clip: nothing paints outside the frame's outer box. */
   overflow: hidden;
-}
-
-/* Paper stays behind the cutout. The bottom stroke is lifted over the
-   shirt by Frame, only along that strip, so the type is not covered. */
-.about-reveal .panel-frame-mat {
-  z-index: -1;
 }
 
 /* Type stays padded inside the border. The photo column runs down to the
@@ -118,47 +113,18 @@
   min-width: 0;
   min-height: 0;
   overflow: visible;
-  container-type: size;
-}
-
-.about-photo,
-.about-hem img {
-  display: block;
-  object-fit: contain;
-  object-position: right bottom;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
 }
 
 .about-photo {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  /* Drop from the paper edge onto the inside of the bottom stroke. */
-  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-inner, var(--ink-inset, 0px))));
-}
-
-/* The same cutout, shifted down so its bottom edge lands on the outer
-   reach of the stroke (--ink-outer). Clipped to the strip below the
-   unshifted photo, so the face stays put and only the hem moves. */
-.about-hem {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + var(--ink-inset, 0px) - var(--ink-inner, 0px));
-  height: calc(var(--ink-inner, 0px) - var(--ink-outer, 0px));
-  overflow: hidden;
+  display: block;
+  object-fit: contain;
+  object-position: right bottom;
+  /* The grid cell sets the box. This lands the bitmap on the dark part of the stroke. */
+  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   pointer-events: none;
-}
-
-.about-hem img {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100cqw;
-  height: 100cqh;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -200,8 +166,7 @@
     align-self: end;
   }
 
-  .about-photo,
-  .about-hem img {
+  .about-photo {
     object-position: center bottom;
   }
 }

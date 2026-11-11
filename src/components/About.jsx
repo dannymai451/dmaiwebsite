@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -10,6 +10,30 @@ gsap.registerPlugin(useGSAP, ScrollTrigger)
 export default function About() {
   const aboutRef = useRef(null)
   const revealRef = useRef(null)
+  const slotRef = useRef(null)
+  const photoRef = useRef(null)
+
+  // The photo has to live under the ink in the tree, so it cannot be the grid
+  // cell. This copies the empty cell's box onto the image.
+  useEffect(() => {
+    const reveal = revealRef.current
+    const slot = slotRef.current
+    const photo = photoRef.current
+    if (!reveal || !slot || !photo) return
+    const place = () => {
+      const frame = reveal.getBoundingClientRect()
+      const cell = slot.getBoundingClientRect()
+      photo.style.left = `${cell.left - frame.left}px`
+      photo.style.top = `${cell.top - frame.top}px`
+      photo.style.width = `${cell.width}px`
+      photo.style.height = `${cell.height}px`
+    }
+    place()
+    const observer = new ResizeObserver(place)
+    observer.observe(reveal)
+    observer.observe(slot)
+    return () => observer.disconnect()
+  }, [])
 
   // Fade the about frame in across the scroll from the hero. Reduced motion
   // skips the tween and About.css shows the frame at full opacity.
@@ -31,6 +55,15 @@ export default function About() {
     <section className="about" ref={aboutRef} aria-labelledby="about-title">
       <div className="about-box">
         <div className="about-reveal" ref={revealRef}>
+          <Frame width="100%" height="100%">
+            <img
+              ref={photoRef}
+              className="about-photo"
+              src="/me.webp"
+              alt="Danny holding a pastry"
+              draggable="false"
+            />
+          </Frame>
           <div className="about-layout">
             <div className="about-copy">
               <h2 className="about-title" id="about-title">
@@ -58,19 +91,8 @@ export default function About() {
                 life, making people's days a little easier, and learning with other curious minds.
               </p>
             </div>
-            <div className="about-photo-slot">
-              <img
-                className="about-photo"
-                src="/me.webp"
-                alt="Danny holding a pastry"
-                draggable="false"
-              />
-              <div className="about-hem" aria-hidden="true">
-                <img src="/me.webp" alt="" draggable="false" />
-              </div>
-            </div>
+            <div className="about-photo-slot" ref={slotRef} />
           </div>
-          <Frame width="100%" height="100%" />
         </div>
       </div>
     </section>

@@ -200,7 +200,7 @@ async function shoot(page) {
     }
   })
   const normal = decodePNG(await page.screenshot())
-  await page.addStyleTag({ content: '.about-photo, .about-hem { opacity: 0 !important; }' })
+  await page.addStyleTag({ content: '.about-photo { opacity: 0 !important; }' })
   await page.waitForTimeout(50)
   const hidden = decodePNG(await page.screenshot())
   return judge(normal, hidden, geo)
