@@ -17,13 +17,15 @@
 }
 
 .hero-greeting {
-  margin: 0;
+  /* Caveat's y hangs past the line box. The padding holds that descender
+     inside the border box. The margin cancels the pad past the original
+     0.10em, so the links stay where they were. */
+  margin: 0 0 -0.16em;
   font-family: "Caveat", cursive;
   font-weight: 700;
   font-size: clamp(3.2rem, 11.2cqi, 7.6rem);
   line-height: 0.72;
-  /* Tight line-height paints past the line box; pad so link margin measures from the ink. */
-  padding-bottom: 0.10em;
+  padding-bottom: 0.26em;
   color: #1a1a1a;
   text-align: center;
   white-space: nowrap;
