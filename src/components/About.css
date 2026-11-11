@@ -137,10 +137,7 @@
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);
-    /* Floor keeps the cutout in the frame when the root font grows.
-       At the normal size the leftover row is already taller. */
     grid-template-rows: auto minmax(24cqmin, 1fr);
-    align-content: end;
     row-gap: 5cqmin;
   }
 
