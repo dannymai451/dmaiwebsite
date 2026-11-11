@@ -3,6 +3,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import Frame from './Frame'
+import AboutPhoto from './AboutPhoto'
+import { ABOUT_SCROLL } from '../lib/crumple'
 import './About.css'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -10,9 +12,11 @@ gsap.registerPlugin(useGSAP, ScrollTrigger)
 export default function About() {
   const aboutRef = useRef(null)
   const revealRef = useRef(null)
+  const photoRef = useRef(null)
 
-  // Fade the about frame in across the scroll from the hero. Reduced motion
-  // skips the tween and About.css shows the frame at full opacity.
+  // Fade the frame, and uncrumple the photo, across one scroll range.
+  // Reduced motion skips both: About.css shows the frame, and AboutPhoto
+  // never mounts the canvas.
   useGSAP(() => {
     gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
       gsap.fromTo(
@@ -21,9 +25,22 @@ export default function About() {
         {
           opacity: 1,
           ease: 'sine.inOut',
-          scrollTrigger: { trigger: aboutRef.current, start: 'top 96%', end: 'top 0%', scrub: true },
+          scrollTrigger: {
+            trigger: aboutRef.current,
+            start: ABOUT_SCROLL.start,
+            end: ABOUT_SCROLL.end,
+            scrub: true,
+          },
         },
       )
+
+      const trigger = ScrollTrigger.create({
+        trigger: aboutRef.current,
+        start: ABOUT_SCROLL.start,
+        end: ABOUT_SCROLL.end,
+        onUpdate: (self) => photoRef.current?.setProgress(self.progress),
+      })
+      photoRef.current?.setProgress(trigger.progress)
     })
   })
 
@@ -59,14 +76,7 @@ export default function About() {
                 life, making people's days a little easier, and learning with other curious minds.
               </p>
             </div>
-            <div className="about-photo-slot">
-              <img
-                className="about-photo"
-                src="/me.webp"
-                alt="Danny holding a pastry"
-                draggable="false"
-              />
-            </div>
+            <AboutPhoto ref={photoRef} />
           </div>
         </div>
       </div>

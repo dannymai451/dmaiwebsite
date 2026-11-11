@@ -114,6 +114,19 @@
   overflow: visible;
 }
 
+.about-photo.is-covered {
+  opacity: 0;
+}
+
+.about-photo-paper {
+  z-index: 1;
+  background: none;
+}
+
+.about-photo-paper.is-flat {
+  visibility: hidden;
+}
+
 .about-photo {
   position: absolute;
   inset: 0;
