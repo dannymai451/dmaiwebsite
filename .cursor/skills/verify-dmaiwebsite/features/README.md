@@ -1,28 +1,27 @@
 # dmaiwebsite verification map
 
-This directory is the maintained source for verifying what a visitor can do on the page. Read this index, then use the matching feature file.
+This directory is the source for what a visitor can do on the page. Read this index, then the matching feature file.
 
 ## Baseline preconditions
 
-- Launch with `npm run dev -- --host 127.0.0.1 --port 5199 --strictPort`.
-- Doctor must show HTTP 200, `id="root"`, and a vite command line that contains `5199`.
-- Use Chromium at 1440x900. Do not drive a server this run did not start.
+- Launch with `.cursor/skills/verify-dmaiwebsite/scripts/launch.sh`.
+- Doctor must print `READY` for the pid that launch recorded.
+- Chromium at 1440x900. Do not drive a server this run did not start.
 - No login and no seed data. The page is the whole product.
-- The motion spec turns scroll snap off inside the page it drives. A manual scroll check has to do the same, or the scroll will not stay put.
+- A dev server on port 5173, if one is already running, is not this run. Leave it alone.
+- Scroll snap stays on for a normal visit. The driver turns it off only after it has recorded the snap, and only inside the page it opened.
 
 ## Driving conventions
 
 - Start from the top of the page unless the feature file says otherwise.
-- Prefer the accessible names in the feature file over element position.
-- Run the motion suite with `npm run test:e2e` for the hero and About.
-- For a section the suite does not cover, drive it in the same Chromium session and record the command you ran.
+- Prefer the accessible names in the feature file. Experience, Projects, and the footer slot have no accessible name; use the selectors in those files.
+- Run one feature with `.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs <feature>`.
 - Leave proof files in place during cleanup.
 
 ## Proof and skip reporting
 
-- Record the action and the resulting state.
-- UI proof is a screenshot plus the number you asserted (opacity or how much of a figure sits below the viewport).
-- Keep `artifacts/verify-dmaiwebsite/`, `playwright-report/`, and `test-results/`.
+- Record the action and the resulting state. The JSON file is that record. The PNG is the matching frame.
+- Keep `artifacts/verify-dmaiwebsite/`.
 - Name the feature id in the note you attach to the proof.
 - If a path cannot be reached, record the command and the missing precondition. Do not mark it verified through a different path.
 
@@ -38,7 +37,7 @@ Each feature file has an H1, one paragraph, then these H2 sections in order.
 ## Features
 
 - [Hero](./hero.md) covers the greeting, the three figures, scroll tuck, reduced motion, and the contact links.
-- [About](./about.md) covers the fade-in and reduced motion.
+- [About](./about.md) covers the fade from the hero into the About copy and photo, including reduced motion.
 - [Experience](./experience.md) covers the empty Experience stage.
 - [Projects](./projects.md) covers the empty Projects stage.
 - [Footer](./footer.md) covers the empty fixed footer.
