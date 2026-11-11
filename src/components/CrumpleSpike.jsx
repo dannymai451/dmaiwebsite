@@ -15,16 +15,16 @@ function readQuery() {
 }
 
 function Sheet({ progress, size }) {
-  const texture = useLoader(TextureLoader, '/me.webp')
+  const [texture, paper] = useLoader(TextureLoader, ['/me.webp', '/paper-crumple.jpg'])
   const material = useMemo(() => {
-    const created = createCrumpleMaterial(texture)
+    const created = createCrumpleMaterial(texture, paper)
     created.uniforms.uProgress.value = progress
     created.uniforms.uPlane.value.set(size.w, size.h)
     const flat = progress >= 1
     created.depthTest = !flat
     created.depthWrite = !flat
     return created
-  }, [texture, progress, size.w, size.h])
+  }, [texture, paper, progress, size.w, size.h])
 
   useEffect(() => () => material.dispose(), [material])
 

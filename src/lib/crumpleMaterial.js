@@ -1,6 +1,8 @@
 import {
   ClampToEdgeWrapping,
   DoubleSide,
+  LinearFilter,
+  LinearSRGBColorSpace,
   NearestFilter,
   ShaderMaterial,
   SRGBColorSpace,
@@ -70,12 +72,12 @@ void main() {
   float chest = (0.42 - 0.5) * h + sin(p.x / w * 8.5) * h * 0.022;
   float hands = (0.24 - 0.5) * h + sin(p.x / w * 6.4 + 1.1) * h * 0.018;
   float hem = (0.10 - 0.5) * h + sin(p.x / w * 11.0) * h * 0.012;
-  p = bendY(p, chest, 0.95 * depth, h * 0.065, crease, tilt);
-  p = bendY(p, hands, -0.85 * depth, h * 0.05, crease, tilt);
-  p = bendY(p, hem, 0.6 * depth, h * 0.042, crease, tilt);
+  p = bendY(p, chest, 0.38 * depth, h * 0.09, crease, tilt);
+  p = bendY(p, hands, -0.32 * depth, h * 0.07, crease, tilt);
+  p = bendY(p, hem, 0.22 * depth, h * 0.055, crease, tilt);
   float gate = 1.0 - smoothstep(0.52, 0.62, uv.y);
-  p = bendX(p, (0.14 - 0.5) * w, 0.7 * depth * gate, w * 0.07, crease, tilt);
-  p = bendX(p, (0.84 - 0.5) * w, -0.6 * depth * gate, w * 0.08, crease, tilt);
+  p = bendX(p, (0.14 - 0.5) * w, 0.26 * depth * gate, w * 0.1, crease, tilt);
+  p = bendX(p, (0.84 - 0.5) * w, -0.22 * depth * gate, w * 0.11, crease, tilt);
 
   float e = 0.016;
   vec2 nuv = uv * vec2(3.4, 4.2) + vec2(1.7, 0.4);
@@ -85,12 +87,12 @@ void main() {
   vec2 nuv2 = uv * vec2(6.8, 7.4) + vec2(5.0, 1.2);
   float hx = (noise(nuv2 + vec2(e, 0.0)) - noise(nuv2 - vec2(e, 0.0))) / (2.0 * e);
   float hy = (noise(nuv2 + vec2(0.0, e)) - noise(nuv2 - vec2(0.0, e))) / (2.0 * e);
-  p.xy += (vec2(-gx, -gy) * 0.05 + vec2(-hx, -hy) * 0.018) * span * depth;
-  p.z += ((n0 - 0.5) * 0.22 + (noise(nuv2) - 0.5) * 0.08) * span * depth;
+  p.xy += (vec2(-gx, -gy) * 0.02 + vec2(-hx, -hy) * 0.008) * span * depth;
+  p.z += ((n0 - 0.5) * 0.08 + (noise(nuv2) - 0.5) * 0.03) * span * depth;
 
   vec3 pos = position + (p - position) * k;
-  float shade = mix(1.0, 0.5, clamp(crease * 0.42, 0.0, 1.0));
-  shade *= mix(0.78, 1.0, cos(clamp(tilt * 0.4, 0.0, 1.15)));
+  float shade = mix(1.0, 0.78, clamp(crease * 0.3, 0.0, 1.0));
+  shade *= mix(0.9, 1.0, cos(clamp(tilt * 0.35, 0.0, 1.1)));
   vShade = mix(1.0, shade, k);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
@@ -98,55 +100,56 @@ void main() {
 
 const fragmentShader = `
 uniform sampler2D uMap;
+uniform sampler2D uPaper;
 uniform float uProgress;
 varying vec2 vUv;
 varying float vShade;
 varying float vDepth;
-
-float grain(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.x + p3.y) * p3.z);
-}
 
 void main() {
   vec4 texel = texture2D(uMap, vUv);
   float k = 1.0 - uProgress;
   if (k != 0.0) {
     if (texel.a < 0.02) discard;
-    float y1 = 0.42 + 0.022 * sin(vUv.x * 8.5);
-    float y2 = 0.24 + 0.018 * sin(vUv.x * 6.4 + 1.1);
-    float y3 = 0.10 + 0.012 * sin(vUv.x * 11.0);
-    float lines = exp(-abs(vUv.y - y1) * 95.0);
-    lines += exp(-abs(vUv.y - y2) * 115.0);
-    lines += exp(-abs(vUv.y - y3) * 130.0);
-    float side = 1.0 - smoothstep(0.52, 0.62, vUv.y);
-    float x1 = 0.14 + 0.012 * sin(vUv.y * 8.0);
-    float x2 = 0.84 + 0.014 * sin(vUv.y * 8.0 + 1.7);
-    lines += (exp(-abs(vUv.x - x1) * 75.0) + exp(-abs(vUv.x - x2) * 75.0)) * side;
-    float ink = clamp(lines, 0.0, 1.0) * vDepth;
-    texel.rgb *= mix(1.0, mix(1.0, 0.46, ink), k);
+    vec3 paper = texture2D(uPaper, vUv).rgb;
+    float lum = dot(paper, vec3(0.2126, 0.7152, 0.0722));
+    float crease = smoothstep(0.28, 0.56, lum);
+    float wrinkle = mix(0.62, 1.0, crease);
+    float slope = length(vec2(dFdx(lum), dFdy(lum)));
+    wrinkle *= mix(1.0, 0.72, clamp(slope * 28.0, 0.0, 1.0));
+    float amount = mix(0.45, 1.0, vDepth);
+    texel.rgb *= mix(1.0, wrinkle, k * amount);
     texel.rgb *= vShade;
-    texel.rgb *= 1.0 + (grain(gl_FragCoord.xy) - 0.5) * 0.04 * k;
   }
   gl_FragColor = texel;
   #include <colorspace_fragment>
 }
 `
 
-export function createCrumpleMaterial(texture) {
-  texture.colorSpace = SRGBColorSpace
-  texture.minFilter = NearestFilter
-  texture.magFilter = NearestFilter
-  texture.generateMipmaps = false
-  texture.wrapS = ClampToEdgeWrapping
-  texture.wrapT = ClampToEdgeWrapping
-  texture.anisotropy = 1
-  texture.needsUpdate = true
+export function createCrumpleMaterial(photo, paper) {
+  photo.colorSpace = SRGBColorSpace
+  photo.minFilter = NearestFilter
+  photo.magFilter = NearestFilter
+  photo.generateMipmaps = false
+  photo.wrapS = ClampToEdgeWrapping
+  photo.wrapT = ClampToEdgeWrapping
+  photo.anisotropy = 1
+  photo.needsUpdate = true
+
+  // Public-domain photo, Photos Public Domain, 2012.
+  // https://commons.wikimedia.org/wiki/File:Crumpled_olive_green_paper.jpg
+  paper.colorSpace = LinearSRGBColorSpace
+  paper.minFilter = LinearFilter
+  paper.magFilter = LinearFilter
+  paper.generateMipmaps = false
+  paper.wrapS = ClampToEdgeWrapping
+  paper.wrapT = ClampToEdgeWrapping
+  paper.needsUpdate = true
 
   return new ShaderMaterial({
     uniforms: {
-      uMap: { value: texture },
+      uMap: { value: photo },
+      uPaper: { value: paper },
       uProgress: { value: 0 },
       uPlane: { value: new Vector2(1, 1) },
     },

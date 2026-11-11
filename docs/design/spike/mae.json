@@ -1,20 +1,24 @@
 {
   "photo": "public/me.webp",
+  "paper": "public/paper-crumple.jpg",
+  "paperBytes": 38449,
+  "paperSource": "https://commons.wikimedia.org/wiki/File:Crumpled_olive_green_paper.jpg",
+  "paperLicense": "Public domain dedication, Photos Public Domain, 2012",
   "size": [570, 657],
   "runs": 2,
   "screenshotsIdentical": true,
   "note": "Aligned MAE compares the img slot screenshot to each shader slot. Interior pixels are source alpha 0 or 255 and at least one pixel away from a partial-alpha texel.",
   "progress0": {
-    "mae255": 85.80836693458754,
-    "interiorMae255": 85.73652710908235,
-    "bestShift": [0, 3],
-    "alignedMae255": 83.30846522524533
+    "mae255": 30.423185309799152,
+    "interiorMae255": 29.482002124708213,
+    "bestShift": [0, 1],
+    "bestMae255": 30.28285551276566
   },
   "progress0.5": {
-    "mae255": 59.66012799629634,
-    "interiorMae255": 59.15682741689995,
-    "bestShift": [0, 3],
-    "alignedMae255": 57.68918665164328
+    "mae255": 17.55942837814969,
+    "interiorMae255": 16.571975624824766,
+    "bestShift": [0, 0],
+    "bestMae255": 17.55942837814969
   },
   "progress1": {
     "alignedMae255": 0.12409766170881287,
