@@ -22,7 +22,7 @@ From the repo root:
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 ```
 
-The script installs npm dependencies, installs Playwright's Chromium only, and starts:
+The script installs npm dependencies, installs Playwright's Chromium and WebKit, and starts:
 
 ```bash
 npm run dev -- --host 127.0.0.1 --port 5199 --strictPort
@@ -109,6 +109,23 @@ Each JSON file records the action and the resulting state: the scroll that was r
 
 The driver fails the run on any console error or page error.
 
+## Edges
+
+Check that the hero greeting and the contact links stay inside the white card, and that the three figures stay inside the left and right edges of the viewport. The figures are meant to hang below the bottom edge. A vertical overhang there is not a failure.
+
+From the repo root, with the verification server already on 5199:
+
+```bash
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+```
+
+The script does not start a server. It opens WebKit and Chromium at 320, 375, 390, 430, an iPad size of 768×1024, and 1440×900. Each width runs twice.
+
+- `loaded` waits until Caveat has loaded, then measures.
+- `loading` aborts the Google Fonts requests, so the fallback face stays on screen. That is the face shown while Caveat is still loading.
+
+A case fails when the greeting text or the contact links cross `.panel-frame-fill` by more than half a pixel on any side, or when a figure crosses the viewport's left or right edge by more than half a pixel. The script prints one line per case, writes `artifacts/verify-dmaiwebsite/edges.json`, and exits 1 when any case fails. A blocked font request is not a page error.
+
 ## Cleanup
 
 Stop only the pid launch recorded.
@@ -123,12 +140,13 @@ If `npm run test:e2e` started its own server because 5199 was free, that suite s
 
 ## Helpers
 
-All four scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
+All five scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 .cursor/skills/verify-dmaiwebsite/scripts/doctor.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/cleanup.sh
 ```
 
