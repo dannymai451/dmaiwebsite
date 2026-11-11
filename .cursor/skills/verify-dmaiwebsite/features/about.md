@@ -8,6 +8,7 @@ About fades in as its top edge moves from near the bottom of the viewport to the
 - `about-copy` shows the heading `ABOUT ME`, the paragraph that begins `I'm a software engineer interested in ai`, and the photo `Danny holding a pastry`.
 - `about-snap` does not hold an 18% target. That scroll lands on the About start, where the section is already fully opaque.
 - `about-reduced` keeps opacity at 1, including at the 96% position.
+- `about-tuck` puts the bottom of the cutout under the frame's bottom ink. The stroke there is ink, the shirt touches that ink with no paper between them, the cutout does not continue below the stroke, and the heading and paragraph stay inside the frame.
 
 ## How to get to it (user POV)
 
@@ -43,6 +44,14 @@ The command exits 0 only when all of the following are true.
 - **Copy.** At the 0% position the heading is `ABOUT ME`, the paragraph is `I'm a software engineer interested in ai, automating tedious work, and solving tough problems. I enjoy bringing ideas to life, making people's days a little easier, and learning with other curious minds.`, and `Danny holding a pastry` intersects the viewport. `/me.webp` returned 200.
 - **Reduced motion.** With `prefers-reduced-motion: reduce` and snap turned off, opacity stays above 0.92 at both 96% and 0%. The frames are `reduced-about-top-96.png` and `reduced-about-top-0.png`.
 - The URL stays `http://127.0.0.1:5199/`. There is no console error and no page error.
+
+The tuck is a separate pass from the fade. From the repo root:
+
+```bash
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+```
+
+It exits 0 only when `about-tuck` holds in Chromium and WebKit at 320, 375, 390, 430, iPad 768×1024, and 1440×900, with fonts loaded, with Google Fonts blocked, and with the root font size at 150%. Each case screenshots About at the top of the viewport, then again with the cutout hidden. A column counts when the shirt comes within 6px of the bottom stroke. The tuck passes when at least 90% of those columns show ink over the shirt, that ink changes once the cutout is hidden, there is no paper between the shirt and the ink, and no shirt pixel sits on paper below the stroke. The heading and the paragraph, after ancestor clipping, sit inside the inner edge of the ink. `artifacts/verify-dmaiwebsite/edges/edges.json` records every case.
 
 ## Gotchas
 

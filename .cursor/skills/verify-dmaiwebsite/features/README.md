@@ -37,7 +37,7 @@ Each feature file has an H1, one paragraph, then these H2 sections in order.
 ## Features
 
 - [Hero](./hero.md) covers the greeting, the three figures, scroll tuck, reduced motion, and the contact links.
-- [About](./about.md) covers the fade from the hero into the About copy and photo, including reduced motion.
+- [About](./about.md) covers the fade from the hero into the About copy and photo, including reduced motion. `edges.mjs` checks the cutout against the bottom ink.
 - [Experience](./experience.md) covers the empty Experience stage.
 - [Projects](./projects.md) covers the empty Projects stage.
 - [Footer](./footer.md) covers the empty fixed footer.
