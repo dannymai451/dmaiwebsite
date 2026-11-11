@@ -152,6 +152,9 @@ function judge(normal, hidden, geo) {
     if (!inside(geo.title, inkBox)) problems.push('heading leaves the frame')
     if (!inside(geo.para, inkBox)) problems.push('paragraph leaves the frame')
   }
+  if (geo.paraBox.scrollHeight > geo.paraBox.clientHeight + 1) {
+    problems.push(`paragraph is clipped, scrollHeight ${geo.paraBox.scrollHeight} vs clientHeight ${geo.paraBox.clientHeight}`)
+  }
 
   const x0 = Math.max(0, Math.floor(geo.photo.x))
   const x1 = Math.min(normal.width - 1, Math.ceil(geo.photo.right) - 1)
@@ -198,10 +201,14 @@ function judge(normal, hidden, geo) {
     }
   }
 
-  if (tried < 8) problems.push(`only ${tried} shirt columns met the stroke`)
-  if (gaps > Math.floor(tried * 0.08)) problems.push(`paper gap in ${gaps} of ${tried} columns`)
-  if (below > Math.floor(tried * 0.08)) problems.push(`photo below the stroke in ${below} of ${tried} columns`)
-  if (covered < Math.max(8, Math.ceil(tried * 0.9))) problems.push(`ink covers the shirt in ${covered} of ${tried} columns`)
+  const photoThere = geo.photo.h >= 8
+  if (!photoThere && inkBox && geo.para.bottom < inkBox.bottom - 24) {
+    problems.push('photo row collapsed with room under the paragraph')
+  }
+  if (photoThere && tried < 8) problems.push(`only ${tried} shirt columns met the stroke`)
+  if (photoThere && gaps > Math.floor(tried * 0.08)) problems.push(`paper gap in ${gaps} of ${tried} columns`)
+  if (photoThere && below > Math.floor(tried * 0.08)) problems.push(`photo below the stroke in ${below} of ${tried} columns`)
+  if (photoThere && covered < Math.max(8, Math.ceil(tried * 0.9))) problems.push(`ink covers the shirt in ${covered} of ${tried} columns`)
   if (problems.length && samples.length) problems.push(samples.join('; '))
   return { tried, covered, gaps, below, problems }
 }
@@ -239,11 +246,13 @@ async function geometry(page) {
     }
     const frame = document.querySelector('.about-reveal').getBoundingClientRect()
     const photo = document.querySelector('.about-photo').getBoundingClientRect()
+    const paraEl = document.querySelector('.about-copy p')
     return {
       frame: { x: frame.x, y: frame.y, width: frame.width, height: frame.height, bottom: frame.bottom },
       photo: { x: photo.x, y: photo.y, right: photo.right, h: photo.height },
       title: clipped(document.querySelector('#about-title')),
-      para: clipped(document.querySelector('.about-copy p')),
+      para: clipped(paraEl),
+      paraBox: { scrollHeight: paraEl.scrollHeight, clientHeight: paraEl.clientHeight },
     }
   })
 }
