@@ -21,7 +21,7 @@ export default function About() {
         {
           opacity: 1,
           ease: 'sine.inOut',
-          scrollTrigger: { trigger: aboutRef.current, start: 'top 96%', end: 'top 18%', scrub: true },
+          scrollTrigger: { trigger: aboutRef.current, start: 'top 96%', end: 'top 0%', scrub: true },
         },
       )
     })
