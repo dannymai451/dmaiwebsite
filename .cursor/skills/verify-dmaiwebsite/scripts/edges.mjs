@@ -257,6 +257,7 @@ function judgeHop(hop) {
     })
   }
   const overshootPx = []
+  const bouncePx = []
   const finalTy = []
   for (let index = 0; index < 3; index += 1) {
     let peak = samples[0]
@@ -278,6 +279,34 @@ function judgeHop(hop) {
     if (peak.rows[index].top < peak.rowTop - 40 - 0.5) {
       problems.push(`figure ${index} crossed the clip`)
     }
+    const floor = Math.max(2, height * 0.025)
+    const bounces = []
+    for (let i = 1; i < samples.length - 1; i += 1) {
+      const ty = samples[i].rows[index].ty
+      const prev = samples[i - 1].rows[index].ty
+      const next = samples[i + 1].rows[index].ty
+      if (!(ty <= prev && ty < next)) continue
+      const above = end - ty
+      if (above < floor) continue
+      const prior = bounces[bounces.length - 1]
+      if (prior && samples[i].t - prior.t < 140) {
+        if (above > prior.above) {
+          prior.t = samples[i].t
+          prior.above = above
+        }
+        continue
+      }
+      bounces.push({ t: samples[i].t, above })
+    }
+    bouncePx.push(bounces.map((bounce) => Number(bounce.above.toFixed(2))))
+    if (bounces.length < 2) {
+      problems.push(`figure ${index} bounced ${bounces.length} time`)
+    }
+    for (let i = 1; i < bounces.length; i += 1) {
+      if (bounces[i].above > bounces[i - 1].above * 0.8) {
+        problems.push(`figure ${index} bounce ${i} was ${bounces[i].above.toFixed(2)}px`)
+      }
+    }
   }
   return {
     problems,
@@ -285,6 +314,7 @@ function judgeHop(hop) {
       starts,
       gaps,
       overshootPx,
+      bouncePx,
       finalTy,
     },
   }
