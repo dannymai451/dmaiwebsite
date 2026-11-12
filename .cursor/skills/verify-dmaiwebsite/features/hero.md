@@ -48,3 +48,4 @@ The command exits 0 only when all of the following are true.
 - At 1440x900 with snap left on, the 25% sample returns to 0 and the figures stay at about 0.30. The 50% sample stays and the figures are fully below the edge. Turn snap off before the 25% tuck sample, or that sample is a picture of the top of the page.
 - Following a contact link leaves the site. LinkedIn points at the LinkedIn home page, which is the href in the product.
 - The hero is 900px tall at this viewport. Hidden fractions of 0.30, 0.65, and 1.00 are the centers of the pass bands.
+- The hop recorder starts when the figures have size. A cold WebKit load can paint them before the timeline starts. Sampling then runs until 3.2s after the first 8px rise, and never past 12s. The settle band, the bounce count, and the gap band do not change.

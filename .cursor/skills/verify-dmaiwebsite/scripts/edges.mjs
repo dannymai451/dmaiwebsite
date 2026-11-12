@@ -322,7 +322,7 @@ function judgeHop(hop) {
 
 async function armHop(page) {
   await page.addInitScript(() => {
-    window.__hop = { samples: [], alts: null, done: false }
+    window.__hop = { samples: [], alts: null, done: false, motionAt: null }
     const translateY = (img) => {
       const tr = getComputedStyle(img).transform
       if (!tr || tr === 'none') return 0
@@ -349,7 +349,16 @@ async function armHop(page) {
           return { ty: translateY(img), x: rect.x, h: rect.height, top: rect.top }
         }),
       })
-      if (t < 3400) requestAnimationFrame(tick)
+      // A cold WebKit load can paint the figures before GSAP starts. Follow the
+      // first rise, then keep the full spring (fade is already over, stagger
+      // plus 1.45s, plus settle margin). Cap so a figure that never rises still ends.
+      if (window.__hop.motionAt == null && window.__hop.samples.length > 1) {
+        const origin = window.__hop.samples[0]
+        const moved = origin.rows.some((row0, index) => row0.ty - window.__hop.samples.at(-1).rows[index].ty >= 8)
+        if (moved) window.__hop.motionAt = t
+      }
+      const settleBy = window.__hop.motionAt == null ? 3400 : window.__hop.motionAt + 3200
+      if (t < settleBy && t < 12000) requestAnimationFrame(tick)
       else window.__hop.done = true
     }
     requestAnimationFrame(tick)
@@ -357,7 +366,7 @@ async function armHop(page) {
 }
 
 async function readHop(page) {
-  await page.waitForFunction(() => window.__hop && window.__hop.done, { timeout: 8000 })
+  await page.waitForFunction(() => window.__hop && window.__hop.done, { timeout: 15000 })
   return judgeHop(await page.evaluate(() => window.__hop))
 }
 

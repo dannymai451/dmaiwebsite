@@ -245,13 +245,18 @@ for (const engine of engines) {
   }
 }
 
-const compare = await sideBySide('chromium-1440-loaded.png')
+let compare = null
+if (fs.existsSync(mockPath)) {
+  compare = await sideBySide('chromium-1440-loaded.png')
+} else {
+  console.log(`work layout mock missing; skipped compare-1440.png (${mockPath})`)
+}
 fs.mkdirSync(publishDir, { recursive: true })
 for (const file of fs.readdirSync(outDir)) {
   if (!file.endsWith('.png') && !file.endsWith('.json')) continue
   fs.copyFileSync(path.join(outDir, file), path.join(publishDir, file))
 }
-fs.copyFileSync(compare, path.join(publishDir, 'compare-1440.png'))
+if (compare) fs.copyFileSync(compare, path.join(publishDir, 'compare-1440.png'))
 const report = { url, rows: rows.map(({ problems, engine, viewport, mode, file, frame, fontStatus, stacked, beside }) => ({ engine, viewport, mode, file, frame, fontStatus, stacked, beside, problems })) }
 fs.writeFileSync(path.join(outDir, 'work-layout.json'), JSON.stringify(report, null, 2))
 fs.copyFileSync(path.join(outDir, 'work-layout.json'), path.join(publishDir, 'work-layout.json'))
