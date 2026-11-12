@@ -9,9 +9,8 @@ import './Hero.css'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, CustomEase)
 
-// CSS `ease` for the greeting fade, then cubic-bezier(0.2, 0.7, 0.2, 1) for the pop.
+// CSS `ease` for the greeting fade.
 const FADE_EASE = CustomEase.create('hero-fade', '0.25,0.1,0.25,1')
-const POP_EASE = CustomEase.create('hoptimist-pop', '0.2,0.7,0.2,1')
 
 const HOPTIMISTS = [
   { src: '/hoptimist-1.webp', alt: 'Blue hoptimist' },
@@ -44,7 +43,7 @@ export default function Hero() {
           gsap
             .timeline()
             .from(q('.hero-intro'), { opacity: 0, duration: 1, ease: FADE_EASE })
-            .to(figures, { '--pop': 1, duration: 0.8, ease: POP_EASE, stagger: 0.2 })
+            .to(figures, { '--pop': 1, duration: 0.8, ease: 'back.out(1.4)', stagger: 0.36 })
         },
       )
     },

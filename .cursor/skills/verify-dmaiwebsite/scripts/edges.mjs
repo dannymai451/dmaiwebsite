@@ -225,6 +225,112 @@ async function shoot(page) {
   return judge(normal, hidden, geo)
 }
 
+function judgeHop(hop) {
+  const problems = []
+  if (!hop || !hop.samples || hop.samples.length < 8) {
+    return { problems: ['hop log was too short'], summary: null }
+  }
+  const alts = hop.alts || []
+  if (alts.join('|') !== 'Blue hoptimist|Yellow hoptimist|Red hoptimist') {
+    problems.push(`dom order was ${alts.join(', ')}`)
+  }
+  const samples = hop.samples
+  const last = samples[samples.length - 1]
+  const xs = last.rows.map((row) => row.x)
+  if (!(xs[0] < xs[1] && xs[1] < xs[2])) {
+    problems.push(`visual order was ${xs.map((x) => Math.round(x)).join(', ')}`)
+  }
+  const starts = [0, 1, 2].map((index) => {
+    const origin = samples[0].rows[index].ty
+    const hit = samples.find((sample) => origin - sample.rows[index].ty >= 8)
+    return hit ? hit.t : null
+  })
+  let gaps = null
+  if (starts.some((start) => start == null)) {
+    problems.push(`a figure never rose (${starts.join(', ')})`)
+  } else if (!(starts[0] < starts[1] && starts[1] < starts[2])) {
+    problems.push(`start order was ${starts.map((start) => Math.round(start)).join(', ')}`)
+  } else {
+    gaps = [(starts[1] - starts[0]) / 1000, (starts[2] - starts[1]) / 1000]
+    gaps.forEach((gap, index) => {
+      if (gap < 0.3 || gap > 0.42) problems.push(`gap ${index} was ${gap.toFixed(3)}s`)
+    })
+  }
+  const overshootPx = []
+  const finalTy = []
+  for (let index = 0; index < 3; index += 1) {
+    let peak = samples[0]
+    for (const sample of samples) {
+      if (sample.rows[index].ty < peak.rows[index].ty) peak = sample
+    }
+    const end = last.rows[index].ty
+    const height = last.rows[index].h
+    const rest = height * 0.3
+    const overshoot = end - peak.rows[index].ty
+    finalTy.push(Number(end.toFixed(2)))
+    overshootPx.push(Number(overshoot.toFixed(2)))
+    if (Math.abs(end - rest) > 1.25) {
+      problems.push(`figure ${index} settled at ${end.toFixed(2)}px, rest is ${rest.toFixed(2)}px`)
+    }
+    if (overshoot < Math.max(2, height * 0.02)) {
+      problems.push(`figure ${index} overshoot was ${overshoot.toFixed(2)}px`)
+    }
+    if (peak.rows[index].top < peak.rowTop - 40 - 0.5) {
+      problems.push(`figure ${index} crossed the clip`)
+    }
+  }
+  return {
+    problems,
+    summary: {
+      starts,
+      gaps,
+      overshootPx,
+      finalTy,
+    },
+  }
+}
+
+async function armHop(page) {
+  await page.addInitScript(() => {
+    window.__hop = { samples: [], alts: null, done: false }
+    const translateY = (img) => {
+      const tr = getComputedStyle(img).transform
+      if (!tr || tr === 'none') return 0
+      const body = tr.slice(tr.indexOf('(') + 1, -1)
+      const parts = body.split(',').map((part) => Number(part))
+      return tr.startsWith('matrix3d') ? parts[13] : parts[5]
+    }
+    const tick = () => {
+      const imgs = [...document.querySelectorAll('.hero-hoptimists img')]
+      const ready = imgs.length === 3 && imgs.every((img) => img.getBoundingClientRect().height > 1)
+      if (!ready) {
+        requestAnimationFrame(tick)
+        return
+      }
+      if (window.__hop.t0 == null) window.__hop.t0 = performance.now()
+      const t = performance.now() - window.__hop.t0
+      const row = document.querySelector('.hero-hoptimists').getBoundingClientRect()
+      window.__hop.alts = imgs.map((img) => img.alt)
+      window.__hop.samples.push({
+        t,
+        rowTop: row.top,
+        rows: imgs.map((img) => {
+          const rect = img.getBoundingClientRect()
+          return { ty: translateY(img), x: rect.x, h: rect.height, top: rect.top }
+        }),
+      })
+      if (t < 3400) requestAnimationFrame(tick)
+      else window.__hop.done = true
+    }
+    requestAnimationFrame(tick)
+  })
+}
+
+async function readHop(page) {
+  await page.waitForFunction(() => window.__hop && window.__hop.done, { timeout: 8000 })
+  return judgeHop(await page.evaluate(() => window.__hop))
+}
+
 async function runEngine(engine, browserType) {
   const browser = await browserType.launch({ headless: true })
   const results = []
@@ -247,17 +353,48 @@ async function runEngine(engine, browserType) {
       }
       const errors = []
       page.on('pageerror', (error) => errors.push(error.message))
+      if (mode.name === 'fonts') await armHop(page)
       await page.goto(url, { waitUntil: 'networkidle' })
+      let hop = null
+      if (mode.name === 'fonts') hop = await readHop(page)
       await settle(page, mode.zoom)
       const verdict = await shoot(page)
+      if (hop) verdict.problems.push(...hop.problems)
       await page.close()
       const ok = verdict.problems.length === 0 && errors.length === 0
-      results.push({ label, ok, ...verdict, errors })
+      results.push({ label, ok, ...verdict, errors, hop: hop && hop.summary })
       const detail = ok
         ? `columns=${verdict.covered}`
         : [...verdict.problems, ...errors].join('; ')
       console.log(`${ok ? 'PASS' : 'FAIL'} ${label} ${detail}`)
     }
+  }
+  for (const viewport of viewports) {
+    const label = `${engine} ${viewport.name} coarse`
+    const page = await browser.newPage({
+      viewport: { width: viewport.width, height: viewport.height },
+      deviceScaleFactor: 1,
+      hasTouch: true,
+      isMobile: true,
+    })
+    const errors = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    await armHop(page)
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
+    const hop = await readHop(page)
+    const coarse = await page.evaluate(() => window.matchMedia('(pointer: coarse)').matches)
+    if (!coarse) hop.problems.push('pointer: coarse did not match')
+    const xs = await page.evaluate(() =>
+      [...document.querySelectorAll('.hero-hoptimists img')].map((img) => img.getBoundingClientRect().x),
+    )
+    if (!(xs[0] < xs[1] && xs[1] < xs[2])) {
+      hop.problems.push(`coarse visual order was ${xs.map((x) => Math.round(x)).join(', ')}`)
+    }
+    await page.close()
+    const ok = hop.problems.length === 0 && errors.length === 0
+    results.push({ label, ok, problems: hop.problems, errors, hop: hop.summary, tried: 0, covered: 0, gaps: 0, below: 0 })
+    const detail = ok ? `gaps=${hop.summary && hop.summary.gaps && hop.summary.gaps.map((gap) => gap.toFixed(3)).join(',')}` : [...hop.problems, ...errors].join('; ')
+    console.log(`${ok ? 'PASS' : 'FAIL'} ${label} ${detail}`)
   }
   await browser.close()
   return results
