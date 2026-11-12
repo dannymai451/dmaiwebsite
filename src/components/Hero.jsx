@@ -9,9 +9,42 @@ import './Hero.css'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, CustomEase)
 
-// CSS `ease` for the greeting fade, then cubic-bezier(0.2, 0.7, 0.2, 1) for the pop.
+// CSS `ease` for the greeting fade.
 const FADE_EASE = CustomEase.create('hero-fade', '0.25,0.1,0.25,1')
-const POP_EASE = CustomEase.create('hoptimist-pop', '0.2,0.7,0.2,1')
+
+const SPRING_ARRIVE = 0.32
+const SPRING_OMEGA = 19.5
+const SPRING_ZETA = 0.15
+const SPRING_STEPS = 2000
+const SPRING_SAMPLES = new Float64Array(SPRING_STEPS + 1)
+
+function fillSpring() {
+  let position = 0
+  let velocity = 0
+  const dt = 1 / SPRING_STEPS
+  const omega2 = SPRING_OMEGA * SPRING_OMEGA
+  const damp = 2 * SPRING_ZETA * SPRING_OMEGA
+  for (let i = 1; i <= SPRING_STEPS; i += 1) {
+    const u = Math.min(1, (i - 1) / SPRING_STEPS / SPRING_ARRIVE)
+    const target = 1 - Math.pow(1 - u, 2)
+    const acc = omega2 * (target - position) - damp * velocity
+    velocity += acc * dt
+    position += velocity * dt
+    SPRING_SAMPLES[i] = position
+  }
+  SPRING_SAMPLES[SPRING_STEPS] = 1
+}
+
+fillSpring()
+
+function popEase(progress) {
+  if (progress <= 0) return 0
+  if (progress >= 1) return 1
+  const scaled = progress * SPRING_STEPS
+  const index = Math.floor(scaled)
+  const frac = scaled - index
+  return SPRING_SAMPLES[index] + (SPRING_SAMPLES[index + 1] - SPRING_SAMPLES[index]) * frac
+}
 
 const HOPTIMISTS = [
   { src: '/hoptimist-1.webp', alt: 'Blue hoptimist' },
@@ -44,7 +77,7 @@ export default function Hero() {
           gsap
             .timeline()
             .from(q('.hero-intro'), { opacity: 0, duration: 1, ease: FADE_EASE })
-            .to(figures, { '--pop': 1, duration: 0.8, ease: POP_EASE, stagger: 0.2 })
+            .to(figures, { '--pop': 1, duration: 1.45, ease: popEase, stagger: 0.24 })
         },
       )
     },
