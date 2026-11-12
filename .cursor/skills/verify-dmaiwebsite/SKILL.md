@@ -98,7 +98,7 @@ A passing hero run writes:
 - `reduced-hero.png`, `reduced-hero-scroll-50.png`
 - `hero.json` and `hero-reduced.json` with the numbers the assertions used
 
-A passing About run writes `about-snap-18.png`, `about-top-96.png`, `about-top-57.png`, `about-top-18.png`, `about-top-0.png`, `reduced-about-top-96.png`, `reduced-about-top-0.png`, `about.json`, and `about-reduced.json`. Work and the footer write `work.png`, `footer.png`, and a matching `.json`.
+A passing About run writes `about-snap-18.png`, `about-top-96.png`, `about-top-57.png`, `about-top-18.png`, `about-top-0.png`, `reduced-about-top-96.png`, `reduced-about-top-0.png`, `about.json`, and `about-reduced.json`. Work and the footer write `work.png`, `footer.png`, and a matching `.json`. `work-layout.mjs` writes one PNG per engine, width, and font mode under `artifacts/verify-dmaiwebsite/work-layout/`, plus `work-layout.json`. It also writes `compare-1440.png` when `WORK_MOCK` (or the script's fallback image path) points at a file. A missing mock does not fail the layout pass.
 
 Hero numbers on a correct run: greeting opacity moves from below 0.25 to 1, the later figure trails the first by at least 0.15 during the pop, and the hidden fractions are 0.30, 0.65, and 1.00 at the three snap-off scrolls. With snap left on, the 25% scroll lands at 0. About, with snap off: opacity 0 at 96%, about 0.355 at 57%, about 0.916 at 18%, and 1 when the section top is at the top of the viewport. Reduced motion keeps the greeting at 1, the figures at 0.30 until the scroll tuck, and About at 1 even at 96%.
 
@@ -158,7 +158,7 @@ If `npm run test:e2e` started its own server because 5199 was free, that suite s
 
 ## Helpers
 
-All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
+All seven scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh

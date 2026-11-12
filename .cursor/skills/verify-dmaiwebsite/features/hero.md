@@ -7,7 +7,7 @@ The hero greets the visitor, then three figures hop up along the bottom edge, bl
 - `hero-fade` fades the greeting and the contact links from transparent to opaque.
 - `hero-pop` brings in the blue figure, then the yellow, then the red. Each figure starts 0.24s after the one before it, rises, springs past rest, and crosses rest again with each crest and trough smaller than the one before. It settles about 30% below the bottom edge.
 - `hero-snap` sends a scroll of 25% of the hero back to the top at 1440x900.
-- `hero-tuck` lowers the figures once snap is off. At a quarter of the hero they are about 65% below the edge. At half they are fully below it.
+- `hero-tuck` lowers the figures as the hero scrolls. At a quarter of the hero they are about 65% below the edge. At half they are fully below it. With snap left on, the quarter scroll returns to the top, so that sample is taken after snap is off.
 - `hero-reduced` shows the opaque greeting and the settled figures immediately, and `hero-tuck` still applies.
 - `hero-contact` offers GitHub, LinkedIn, and Email. The proof is the href. The links are not followed.
 
@@ -48,3 +48,4 @@ The command exits 0 only when all of the following are true.
 - At 1440x900 with snap left on, the 25% sample returns to 0 and the figures stay at about 0.30. The 50% sample stays and the figures are fully below the edge. Turn snap off before the 25% tuck sample, or that sample is a picture of the top of the page.
 - Following a contact link leaves the site. LinkedIn points at the LinkedIn home page, which is the href in the product.
 - The hero is 900px tall at this viewport. Hidden fractions of 0.30, 0.65, and 1.00 are the centers of the pass bands.
+- The hop recorder starts when the figures have size. A cold WebKit load can paint them before the timeline starts. Sampling then runs until 3.2s after the first 8px rise, and never past 12s. The settle band, the bounce count, and the gap band do not change.
