@@ -77,7 +77,7 @@ export default function Hero() {
           gsap
             .timeline()
             .from(q('.hero-intro'), { opacity: 0, duration: 1, ease: FADE_EASE })
-            .to(figures, { '--pop': 1, duration: 1.45, ease: popEase, stagger: 0.36 })
+            .to(figures, { '--pop': 1, duration: 1.45, ease: popEase, stagger: 0.24 })
         },
       )
     },

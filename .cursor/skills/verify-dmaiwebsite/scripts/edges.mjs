@@ -253,7 +253,7 @@ function judgeHop(hop) {
   } else {
     gaps = [(starts[1] - starts[0]) / 1000, (starts[2] - starts[1]) / 1000]
     gaps.forEach((gap, index) => {
-      if (gap < 0.3 || gap > 0.42) problems.push(`gap ${index} was ${gap.toFixed(3)}s`)
+      if (gap < 0.18 || gap > 0.3) problems.push(`gap ${index} was ${gap.toFixed(3)}s`)
     })
   }
   const overshootPx = []
