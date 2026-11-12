@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// About bottom edge: the shirt meets the ink with no paper gap, the stroke stays ink, and the cutout does not show below it.
 import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'
@@ -105,8 +104,6 @@ function dist(a, b) {
   return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2])
 }
 
-// Columns where the torso runs into the bottom stroke. A passing column has
-// ink on top of the shirt, no white between them, and no shirt past the ink.
 function judge(normal, hidden, geo) {
   const x0 = Math.max(0, Math.floor(geo.photo.x))
   const x1 = Math.min(normal.width - 1, Math.ceil(geo.photo.x + geo.photo.width))
@@ -130,8 +127,6 @@ function judge(normal, hidden, geo) {
     for (let y = y0; y < firstInk; y++) {
       if (shirt(at(normal, x, y))) lastShirt = y
     }
-    // Shoulders leave the stroke early. The hem is the shirt within a few
-    // pixels of the ink, which is also where the old paper gap lived.
     if (lastShirt < 0 || lastShirt < firstInk - 6) continue
     tried += 1
 

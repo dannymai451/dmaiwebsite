@@ -33,12 +33,12 @@
   height: calc(100% - 1.5rem);
   container: about-frame / size;
   opacity: 0;
-  /* Katherine's clip: nothing paints outside the frame's outer box. */
   overflow: hidden;
 }
 
 /* Type stays padded inside the border. The photo column runs down to the
-   inner edge of the ink (--ink-inset, measured by Frame). */
+   inner edge of the ink (--ink-inset, measured by Frame) so the cutout
+   sits on the bottom of the frame without crossing the stroke. */
 .about-layout {
   --frame-pad: 13cqmin;
   position: absolute;
@@ -120,7 +120,7 @@
   display: block;
   object-fit: contain;
   object-position: right bottom;
-  /* The grid cell sets the box. This lands the bitmap on the dark part of the stroke. */
+  /* Drop from the paper edge onto the inside of the bottom stroke. */
   transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   pointer-events: none;
   user-select: none;
@@ -133,7 +133,9 @@
   }
 }
 
-/* Tall frames: type above, photo in the space left under the type. */
+/* Tall frames: type above, portrait planted on the bottom border.
+   The photo row only gets the space left under the type, and the cutout
+   is contained inside that row so it cannot leave the frame. */
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);

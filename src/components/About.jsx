@@ -13,8 +13,6 @@ export default function About() {
   const slotRef = useRef(null)
   const photoRef = useRef(null)
 
-  // The photo has to live under the ink in the tree, so it cannot be the grid
-  // cell. This copies the empty cell's box onto the image.
   useEffect(() => {
     const reveal = revealRef.current
     const slot = slotRef.current

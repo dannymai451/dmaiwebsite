@@ -65,9 +65,8 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%',
       const amp = 1.6 * scale
       const innerPad = Math.ceil(stroke * 0.5 + amp + 2)
       const inset = margin + innerPad
-      // Where the cutout stops: one wobble outside the margin, on the dark
-      // part of the stroke. Frames whose wobble is under a pixel still stop
-      // short of the stroke's faint fringe, or the shirt reads as past the line.
+      // Innermost reach of the wobbly stroke. Content that stops here
+      // touches the line and stays inside it.
       const inkOuter = Math.max(0, margin - Math.max(amp, 0.85))
       const strip = margin + Math.ceil(14 * scale)
 
