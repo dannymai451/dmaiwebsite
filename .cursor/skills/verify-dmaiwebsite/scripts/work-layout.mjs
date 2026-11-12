@@ -131,7 +131,7 @@ async function measure(page) {
     const fun = box(reveal.querySelector('.work-col.is-fun'))
     const stacked = job.bottom <= fun.top + 4
     const beside = job.right <= fun.left + 8 && Math.abs(job.top - fun.top) < 80
-    const narrow = frame.width <= 736
+    const narrow = frame.width <= 832
     if (narrow && !stacked) problems.push('day job and projects did not stack')
     if (!narrow && !beside) problems.push('day job and projects did not sit side by side')
     const fontStatus = document.fonts.status

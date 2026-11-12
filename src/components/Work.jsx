@@ -3,12 +3,17 @@ import { workPage } from './work'
 import './Work.css'
 
 function Arrow({ direction }) {
-  const shaft = direction === 'left' ? 'M36 5 C26 12 18 18 12 28' : 'M6 5 C16 12 24 18 30 28'
-  const head = direction === 'left' ? 'M12 28 L20 24 L14 36' : 'M30 28 L22 24 L28 36'
+  const left = direction === 'left'
   return (
-    <svg className={`work-arrow is-${direction}`} viewBox="0 0 42 40" aria-hidden="true">
-      <path d={shaft} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <path d={head} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg className={`work-arrow is-${direction}`} viewBox="0 0 64 52" aria-hidden="true">
+      <path
+        d={left ? 'M60 6 C 46 12, 34 22, 22 36' : 'M4 6 C 18 12, 30 22, 42 36'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+      <path d={left ? 'M8 46 L 28 40 L 16 20 Z' : 'M56 46 L 36 40 L 48 20 Z'} fill="currentColor" />
     </svg>
   )
 }

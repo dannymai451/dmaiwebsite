@@ -36,7 +36,7 @@ From the repo root:
 - **Proof.** `work.png` is that viewport. `work.json` records the heading, the text, the heading count, the anchor count, and the landed top.
 - There is no console error and no page error.
 
-`work-layout.mjs` exits 0 only when Chromium and WebKit both pass at 320x568, 375x812, 390x844, 430x932, 768x1024, 1024x768, and 1440x900, once with Caveat loaded and once while the font request is still pending. A pass means the document does not scroll horizontally, text does not overlap other text, polaroids do not overlap each other, and no text, tape, or pin crosses the inner edge of the frame. Tape and pins may overlap the top of their own polaroid. Phones stack the day job above the projects. Widths 768 and up keep the two columns side by side.
+`work-layout.mjs` exits 0 only when Chromium and WebKit both pass at 320x568, 375x812, 390x844, 430x932, 768x1024, 1024x768, and 1440x900, once with Caveat loaded and once while the font request is still pending. A pass means the document does not scroll horizontally, text does not overlap other text, polaroids do not overlap each other, and no text, tape, or pin crosses the inner edge of the frame. Tape and pins may overlap the top of their own polaroid. A frame up to 52rem wide stacks the day job above the projects. A wider frame keeps the two columns side by side.
 
 ## Gotchas
 
