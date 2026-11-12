@@ -1,0 +1,67 @@
+export const workPage = {
+  title: 'WORK + PROJECTS',
+  columns: [
+    {
+      id: 'day-job',
+      label: 'the day job',
+      arrow: 'right',
+      note: {
+        title: 'what I do',
+        items: ['[thing you build]', '[impact / number]', '[team or stack]'],
+      },
+      more: '',
+    },
+    {
+      id: 'fun',
+      label: 'stuff I made for fun',
+      arrow: 'left',
+      note: null,
+      more: 'more coming soon...',
+    },
+  ],
+  cards: [
+    {
+      id: 'day-job',
+      column: 'day-job',
+      kind: 'job',
+      tilt: -2.2,
+      hold: { kind: 'tape', tone: 'yellow' },
+      media: '[ team photo ]',
+      image: '',
+      company: '[Company]',
+      role: '[role]',
+      dates: '[25 - now]',
+      badge: 'FULL-TIME',
+    },
+    {
+      id: 'project-1',
+      column: 'fun',
+      kind: 'project',
+      tilt: -1.8,
+      hold: { kind: 'pin', tone: 'blue' },
+      media: '[ app screenshot ]',
+      image: '',
+      title: '[Project 1]',
+      description: '[what it does, 1 line]',
+      links: [
+        { label: 'live', href: '' },
+        { label: 'github', href: '' },
+      ],
+    },
+    {
+      id: 'project-2',
+      column: 'fun',
+      kind: 'project',
+      tilt: 2.5,
+      hold: { kind: 'tape', tone: 'pink' },
+      media: '[ demo gif ]',
+      image: '',
+      title: '[Project 2]',
+      description: '[what it does, 1 line]',
+      links: [
+        { label: 'live', href: '' },
+        { label: 'github', href: '' },
+      ],
+    },
+  ],
+}
