@@ -13,7 +13,7 @@ About fades in as its top edge moves from near the bottom of the viewport to the
 ## How to get to it (user POV)
 
 - Open the site and scroll until the About frame fills the screen.
-- The hero is the only screen above About. The next screen is the empty Experience stage.
+- The hero is the only screen above About. The next screen is Work + Projects.
 
 ## Driving it with Playwright
 

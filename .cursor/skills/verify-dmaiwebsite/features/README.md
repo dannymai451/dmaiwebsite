@@ -14,7 +14,7 @@ This directory is the source for what a visitor can do on the page. Read this in
 ## Driving conventions
 
 - Start from the top of the page unless the feature file says otherwise.
-- Prefer the accessible names in the feature file. Experience, Projects, and the footer slot have no accessible name; use the selectors in those files.
+- Prefer the accessible names in the feature file. The footer slot has no accessible name. Use the selector in that file.
 - Run one feature with `.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs <feature>`.
 - Leave proof files in place during cleanup.
 
@@ -38,6 +38,5 @@ Each feature file has an H1, one paragraph, then these H2 sections in order.
 
 - [Hero](./hero.md) covers the greeting, the three figures, scroll tuck, reduced motion, and the contact links.
 - [About](./about.md) covers the fade from the hero into the About copy and photo, including reduced motion. `edges.mjs` checks the cutout against the bottom ink.
-- [Experience](./experience.md) covers the empty Experience stage.
-- [Projects](./projects.md) covers the empty Projects stage.
+- [Work](./work.md) covers the Work + Projects stage and the layout sweep.
 - [Footer](./footer.md) covers the empty fixed footer.
