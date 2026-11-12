@@ -35,6 +35,9 @@
   opacity: 0;
 }
 
+/* Type stays padded inside the border. The photo column runs down to the
+   inner edge of the ink (--ink-inset, measured by Frame) so the cutout
+   sits on the bottom of the frame without crossing the stroke. */
 .about-layout {
   --frame-pad: 13cqmin;
   position: absolute;
@@ -60,6 +63,8 @@
 .about-copy {
   z-index: 3;
   align-self: center;
+  /* The photo column is taller than the old even inset. This keeps the
+     type on its previous vertical center. */
   margin-bottom: calc(var(--frame-pad) - var(--ink-inset, 7cqmin));
   min-width: 0;
   display: flex;
@@ -128,6 +133,7 @@
   height: calc(100% - (var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   object-fit: contain;
   object-position: right bottom;
+  /* Drop from the paper edge onto the inside of the bottom stroke. */
   transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   pointer-events: none;
   user-select: none;
@@ -140,6 +146,9 @@
   }
 }
 
+/* Tall frames: type above, portrait planted on the bottom border.
+   The photo row only gets the space left under the type, and the cutout
+   is contained inside that row so it cannot leave the frame. */
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -173,14 +182,12 @@
   }
 }
 
-/* The type fills this frame at 150% root size. Sit it on the ink instead of the usual pad. */
 @container about-frame (max-width: 290px) {
   .about-layout {
     top: var(--ink-inset, 7cqmin);
   }
 }
 
-/* Shorter than the 700px phone in the edge sweep. The paragraph outgrows the section, so the box scrolls. */
 @media (max-width: 400px) and (max-height: 640px) {
   .about-box {
     overflow-y: auto;

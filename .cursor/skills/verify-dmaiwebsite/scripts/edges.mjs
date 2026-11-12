@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// About bottom edge: shirt meets ink, the stroke stays on top, nothing hangs below it, and the type stays inside.
 import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'

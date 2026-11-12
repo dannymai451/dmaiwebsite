@@ -139,8 +139,6 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
         paint(canvas, x, y, sw, sh, x, y)
       })
 
-      // The slot clips this copy of the bottom stroke, so it covers the shirt
-      // and leaves the type in the layout's original stacking context.
       if (slot) {
         if (!hem) {
           hem = document.createElement('canvas')
