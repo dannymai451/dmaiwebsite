@@ -158,7 +158,7 @@ If `npm run test:e2e` started its own server because 5199 was free, that suite s
 
 ## Helpers
 
-All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
+All seven scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh

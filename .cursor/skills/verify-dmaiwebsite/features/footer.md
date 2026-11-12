@@ -4,7 +4,7 @@ The footer is a fixed layer behind the page. A tall empty slot at the end of the
 
 ## Sub-features
 
-- `footer-present` reserves a full-viewport slot after Projects and shows an empty fixed footer behind the page.
+- `footer-present` reserves a full-viewport slot after Work and shows an empty fixed footer behind the page.
 
 ## How to get to it (user POV)
 
@@ -16,7 +16,7 @@ The footer is a fixed layer behind the page. A tall empty slot at the end of the
 Preconditions:
 
 - Doctor printed `READY` for `http://127.0.0.1:5199/`.
-- Projects is already in the document. The footer has no seed links to load.
+- Work is already in the document. The footer has no seed links to load.
 
 From the repo root:
 

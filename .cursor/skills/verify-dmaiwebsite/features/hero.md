@@ -7,7 +7,7 @@ The hero greets the visitor, then three figures hop up along the bottom edge, bl
 - `hero-fade` fades the greeting and the contact links from transparent to opaque.
 - `hero-pop` brings in the blue figure, then the yellow, then the red. Each figure starts 0.24s after the one before it, rises, springs past rest, and crosses rest again with each crest and trough smaller than the one before. It settles about 30% below the bottom edge.
 - `hero-snap` sends a scroll of 25% of the hero back to the top at 1440x900.
-- `hero-tuck` lowers the figures once snap is off. At a quarter of the hero they are about 65% below the edge. At half they are fully below it.
+- `hero-tuck` lowers the figures as the hero scrolls. At a quarter of the hero they are about 65% below the edge. At half they are fully below it. With snap left on, the quarter scroll returns to the top, so that sample is taken after snap is off.
 - `hero-reduced` shows the opaque greeting and the settled figures immediately, and `hero-tuck` still applies.
 - `hero-contact` offers GitHub, LinkedIn, and Email. The proof is the href. The links are not followed.
 
