@@ -1,5 +1,5 @@
 /*
-  Shared full-viewport shell for Hero, Experience, Projects, and the footer box.
+  Shared full-viewport shell for Hero and the footer box.
 
   Portrait is the default: the inner box fills the screen and sits at the top.
   Landscape, including a phone held sideways, restores the centered 16:9 frame.

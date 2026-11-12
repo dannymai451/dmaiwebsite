@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..')
 const shots = path.join(root, 'artifacts', 'verify-dmaiwebsite')
 const url = 'http://127.0.0.1:5199/'
-const features = ['hero', 'about', 'experience', 'projects', 'footer']
+const features = ['hero', 'about', 'work', 'footer']
 
 function band(value, [min, max], label) {
   if (!(value >= min && value <= max)) {
@@ -381,35 +381,66 @@ async function driveAbout() {
   }
 }
 
-async function driveEmpty(name, selector, file) {
+async function driveWork() {
   const browser = await chromium.launch({ headless: true })
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     const { errors } = track(page)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await page.locator(selector).waitFor({ state: 'attached' })
-    await page.waitForFunction((sel) => (document.querySelector(sel)?.offsetHeight || 0) > 100, selector)
+    const section = page.locator('section.work')
+    await section.waitFor({ state: 'attached' })
+    await page.waitForFunction(() => (document.querySelector('section.work')?.offsetHeight || 0) > 100)
     await disableSnap(page)
-    const place = await scrollToTop(page, selector)
-    if (Math.abs(place.top) > 2) throw new Error(`${name} top landed at ${place.top}`)
-    if (place.height < 800) throw new Error(`${name} is ${place.height}px tall`)
-    const text = (await page.locator(selector).innerText()).trim()
-    const headings = await page.locator(selector).getByRole('heading').count()
-    if (text !== '') throw new Error(`${name} rendered copy: ${text}`)
-    if (headings !== 0) throw new Error(`${name} rendered ${headings} headings`)
-    await shot(page, file)
+    const place = await scrollToTop(page, 'section.work')
+    if (Math.abs(place.top) > 2) throw new Error(`work top landed at ${place.top}`)
+    if (place.height < 800) throw new Error(`work is ${place.height}px tall`)
+    const heading = (await page.locator('#work-title').innerText()).replace(/\s+/g, ' ').trim()
+    if (heading !== 'WORK + PROJECTS') throw new Error(`work heading was ${heading}`)
+    const text = (await section.innerText()).replace(/\s+/g, ' ').trim()
+    const required = [
+      'the day job',
+      '[ team photo ]',
+      '[Company]',
+      '[role]',
+      '[25 - now]',
+      'FULL-TIME',
+      'what I do',
+      '[thing you build]',
+      '[impact / number]',
+      '[team or stack]',
+      'stuff I made for fun',
+      '[ app screenshot ]',
+      '[Project 1]',
+      '[what it does, 1 line]',
+      '[ demo gif ]',
+      '[Project 2]',
+      'more coming soon...',
+    ]
+    for (const line of required) {
+      if (!text.includes(line)) throw new Error(`work is missing ${line}`)
+    }
+    const live = await section.getByText('live', { exact: true }).count()
+    const github = await section.getByText('github', { exact: true }).count()
+    if (live !== 2 || github !== 2) throw new Error(`work links rendered live=${live} github=${github}`)
+    const anchors = await section.locator('a').count()
+    if (anchors !== 0) throw new Error(`work rendered ${anchors} anchors`)
+    const headings = await section.getByRole('heading').count()
+    if (headings !== 1) throw new Error(`work rendered ${headings} headings`)
+    await shot(page, 'work')
     assertQuiet(errors)
-    writeJson(`${file}.json`, {
-      feature: name,
-      selector,
+    writeJson('work.json', {
+      feature: 'work',
+      selector: 'section.work',
+      heading,
       text,
       headings,
+      anchors,
       top: place.top,
       height: place.height,
       scrollY: place.scrollY,
       consoleErrors: errors,
     })
-    console.log(`${name} ok`)
+    console.log('work ok')
   } finally {
     await browser.close()
   }
@@ -461,8 +492,7 @@ if (!features.includes(feature)) {
 const runs = {
   hero: driveHero,
   about: driveAbout,
-  experience: () => driveEmpty('experience', 'section.experience', 'experience'),
-  projects: () => driveEmpty('projects', 'section.projects', 'projects'),
+  work: driveWork,
   footer: driveFooter,
 }
 

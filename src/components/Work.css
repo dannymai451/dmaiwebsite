@@ -1,0 +1,473 @@
+.work {
+  min-height: 100vh;
+  min-height: 100svh;
+  position: relative;
+  scroll-snap-align: start;
+}
+
+.work-box {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+}
+
+.work-reveal {
+  position: relative;
+  width: calc(100% - 1.5rem);
+  min-height: calc(100svh - 1.5rem);
+  margin: 0.75rem auto;
+  container: work-frame / inline-size;
+}
+
+.work-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding:
+    calc(var(--ink-inset, 1.2rem) + 0.65rem)
+    calc(var(--ink-inset, 1rem) + 0.1rem)
+    calc(var(--ink-inset, 1rem) + 0.35rem);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35cqi;
+}
+
+.work-title {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 1.25rem;
+  padding-inline: 0.15em;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(2rem, 8.2cqi, 5rem);
+  line-height: 0.82;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  text-align: center;
+  text-wrap: balance;
+  transform: rotate(-1.2deg);
+}
+
+.work-title span {
+  position: relative;
+  z-index: 1;
+}
+
+.work-mark {
+  position: absolute;
+  z-index: 0;
+  left: -2%;
+  top: 46%;
+  width: 104%;
+  height: 0.62em;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.work-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.22fr) auto minmax(0, 1.05fr);
+  align-items: start;
+  justify-content: stretch;
+  gap: 0.8cqi;
+  width: 100%;
+  min-width: 0;
+}
+
+.work-col {
+  min-width: 0;
+  display: flex;
+  justify-content: stretch;
+}
+
+.work-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.work-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.2rem;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 2.7cqi, 2.15rem);
+  line-height: 1;
+  color: #1a1a1a;
+}
+
+.work-col.is-day-job .work-label {
+  margin-left: 0.4rem;
+}
+
+.work-arrow {
+  width: clamp(2.6rem, 5.4cqi, 4.1rem);
+  height: clamp(2rem, 4.2cqi, 3.15rem);
+  flex: none;
+  color: #1a1a1a;
+  overflow: visible;
+}
+
+.work-rule {
+  flex: none;
+  align-self: stretch;
+  width: 0;
+  margin: 0.4rem 0.45rem 0.2rem;
+  border-left: 2px dashed rgba(26, 18, 18, 0.55);
+}
+
+.work-cluster {
+  display: grid;
+  align-items: start;
+  justify-content: stretch;
+  gap: 0.7rem 0.85cqi;
+  width: 100%;
+  min-width: 0;
+}
+
+.work-col.is-day-job .work-cluster {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+}
+
+.work-col.is-fun .work-cluster {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.polaroid-slot,
+.work-note-slot {
+  box-sizing: border-box;
+  padding: 2.7rem 0.4rem 0.45rem;
+  min-width: 0;
+}
+
+.work-note-slot {
+  padding-top: 1.85rem;
+}
+
+.polaroid {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.5rem 0.65rem;
+  background: #fff;
+  box-shadow:
+    0 0.7rem 1.15rem rgba(40, 24, 12, 0.16),
+    0 0.08rem 0.15rem rgba(40, 24, 12, 0.08);
+  transform: rotate(var(--tilt));
+}
+
+.polaroid-media {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 4;
+  background: repeating-linear-gradient(-32deg, #e6e6e6 0 9px, #f6f6f6 9px 18px);
+  color: #8a8a8a;
+  font-family: "Caveat", cursive;
+  font-size: clamp(0.95rem, 2.2cqi, 1.45rem);
+  text-align: center;
+}
+
+.polaroid-media span {
+  max-width: 100%;
+  padding: 0 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.polaroid-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.polaroid-caption {
+  padding: 0.45rem 0.15rem 0.1rem;
+  color: #1a1a1a;
+  min-width: 0;
+}
+
+.polaroid-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.polaroid-company,
+.polaroid-name,
+.polaroid-meta,
+.polaroid-desc,
+.polaroid-links {
+  margin: 0;
+  min-width: 0;
+}
+
+.polaroid-company,
+.polaroid-name {
+  flex: 1 1 auto;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2.15cqi, 1.85rem);
+  line-height: 1;
+}
+
+.polaroid-meta,
+.polaroid-desc {
+  margin-top: 0.12rem;
+  font-family: "Caveat", cursive;
+  font-size: clamp(0.92rem, 1.7cqi, 1.35rem);
+  line-height: 1.15;
+  color: #2a2220;
+}
+
+.polaroid-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.55rem;
+  margin-top: 0.2rem;
+}
+
+.work-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12rem;
+  color: inherit;
+  font-family: "Caveat", cursive;
+  font-size: clamp(0.95rem, 1.7cqi, 1.4rem);
+  line-height: 1;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.work-link svg {
+  width: 0.72rem;
+  height: 0.72rem;
+  flex: none;
+}
+
+.work-badge {
+  flex: none;
+  margin-top: 0.15rem;
+  padding: 0.18rem 0.38rem 0.14rem;
+  border-radius: 0.28rem;
+  background: #1a1a1a;
+  color: #fff;
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: clamp(0.52rem, 1.05cqi, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.work-tape,
+.work-pin {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0.12rem 0.18rem rgba(0, 0, 0, 0.28));
+}
+
+.work-tape {
+  height: auto;
+}
+
+.work-tape.is-yellow {
+  left: 46%;
+  top: 0;
+  width: 48%;
+  color: #f0cc3d;
+  transform: translate(-50%, -34%) rotate(-7deg);
+}
+
+.work-tape.is-pink {
+  left: 74%;
+  top: 0;
+  width: 44%;
+  color: #f3a8b8;
+  transform: translate(-50%, -32%) rotate(14deg);
+}
+
+.work-pin {
+  left: 50%;
+  top: 0;
+  width: clamp(1.15rem, 2.2cqi, 2rem);
+  height: auto;
+  transform: translate(-50%, -58%);
+  filter: drop-shadow(0.08rem 0.18rem 0.16rem rgba(0, 0, 0, 0.35));
+}
+
+.work-pin.is-blue {
+  color: #3aa0e6;
+}
+
+.work-note {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.65rem 0.55rem 0.75rem 0.45rem;
+  background: #fff3a3;
+  color: #1a1a1a;
+  box-shadow: 0 0.55rem 0.9rem rgba(40, 30, 8, 0.14);
+  transform: rotate(1.4deg);
+}
+
+.work-note-title {
+  margin: 0 0 0.2rem;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 2.5cqi, 1.7rem);
+  line-height: 1;
+}
+
+.work-note ul {
+  margin: 0;
+  padding-left: 0.7rem;
+  font-family: "Caveat", cursive;
+  font-size: clamp(0.95rem, 2.15cqi, 1.35rem);
+  line-height: 1.2;
+}
+
+.work-note li {
+  overflow-wrap: break-word;
+}
+
+.work-note li + li {
+  margin-top: 0.08rem;
+}
+
+.work-more {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font-family: "Caveat", cursive;
+  font-size: clamp(1.05rem, 2.2cqi, 1.55rem);
+  color: #3a3330;
+}
+
+@container work-frame (max-width: 52rem) {
+  .work-board {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .work-rule {
+    width: min(70%, 14rem);
+    height: 0;
+    align-self: center;
+    margin: 0.35rem auto;
+    border-left: 0;
+    border-top: 2px dashed rgba(26, 18, 18, 0.55);
+  }
+
+  .work-col.is-day-job .work-cluster {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 0.35rem 0.4rem;
+  }
+
+  .work-note {
+    padding: 0.5rem 0.4rem 0.6rem 0.35rem;
+  }
+
+  .work-note ul {
+    padding-left: 0.62rem;
+    font-size: clamp(0.92rem, 4.5cqi, 1.2rem);
+    line-height: 1.15;
+  }
+
+  .polaroid-slot,
+  .work-note-slot {
+    padding-top: 2.15rem;
+    padding-inline: 0.2rem;
+  }
+}
+
+@media (orientation: landscape) and (width > 800px) {
+  .work {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .work-box {
+    width: min(100vw, calc(100svh * 16 / 9));
+    height: min(100svh, calc(100vw * 9 / 16));
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .work-reveal {
+    width: 92%;
+    height: 92%;
+    min-height: 0;
+    margin: 0;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .work-layout {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    padding-top: calc(var(--ink-inset, 1rem) + 0.55rem);
+    padding-bottom: calc(var(--ink-inset, 1rem) + 0.45rem);
+  }
+
+  .work-title {
+    font-size: clamp(2rem, 11cqmin, 5.1rem);
+  }
+
+  .work-board {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .work-col,
+  .work-stack {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .work-cluster {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .work-note-slot {
+    align-self: start;
+    height: auto;
+  }
+
+  .polaroid-slot {
+    height: 100%;
+  }
+
+  .polaroid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .polaroid-media {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 7.5rem;
+  }
+
+  .work-col.is-day-job .polaroid-slot {
+    width: min(100%, 68cqb);
+    justify-self: start;
+  }
+}

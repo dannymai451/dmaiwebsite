@@ -2,13 +2,13 @@
 name: verify-dmaiwebsite
 description: >-
   Verify the dmaiwebsite single scrolling page in desktop Chromium.
-  Use when changing the hero, About, Experience, Projects, or footer,
+  Use when changing the hero, About, Work, or footer,
   or when asked to prove the page, its scroll, or its motion.
 ---
 
 # Verify dmaiwebsite
 
-The only surface is one scrolling page at `/`. There is no router, account, database, or seed data. A visitor gets a hero, then About, an empty Experience stage, an empty Projects stage, and an empty fixed footer. `three`, React Three Fiber, and `paperlab` are dependencies, and none of them mounts a canvas on this page.
+The only surface is one scrolling page at `/`. There is no router, account, database, or seed data. A visitor gets a hero, then About, a Work + Projects stage, and an empty fixed footer. `three`, React Three Fiber, and `paperlab` are dependencies, and none of them mounts a canvas on this page.
 
 The repo's dev command is `npm run dev` (Vite, default port 5173). Verification uses port 5199 so it can sit beside that server. A normal dev server may already be listening on 5173. Leave it alone. Two app servers can run side by side on different ports. This skill will not start a second process on 5199 and will not drive a process it did not start.
 
@@ -64,8 +64,7 @@ Read `features/README.md`, then run one feature:
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs about
-.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs experience
-.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs projects
+.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs work
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs footer
 ```
 
@@ -77,7 +76,7 @@ The script opens Chromium at 1440x900 against `http://127.0.0.1:5199/`. Handles,
 - images `Blue hoptimist`, `Yellow hoptimist`, `Red hoptimist`
 - heading `ABOUT ME`
 - image `Danny holding a pastry`
-- `section.experience` and `section.projects` (no accessible name and no heading)
+- heading `WORK + PROJECTS`
 - `.foot-slot`, then the footer as the `contentinfo` landmark
 
 `html` uses `scroll-snap-type: y proximity`. Chromium reports the computed value as `y`. At 1440x900 the hero is 900px tall. A scroll to 25% of the hero returns to 0. A scroll that puts About's top at 18% of the viewport snaps to the About start. The 50% hero scroll and the 57% About scroll stay. The driver records the snap-back, then injects `html { scroll-snap-type: none !important }` and requires the computed value `none` before it samples the rest of the curve. Leave the product CSS alone.
@@ -99,13 +98,13 @@ A passing hero run writes:
 - `reduced-hero.png`, `reduced-hero-scroll-50.png`
 - `hero.json` and `hero-reduced.json` with the numbers the assertions used
 
-A passing About run writes `about-snap-18.png`, `about-top-96.png`, `about-top-57.png`, `about-top-18.png`, `about-top-0.png`, `reduced-about-top-96.png`, `reduced-about-top-0.png`, `about.json`, and `about-reduced.json`. Experience, Projects, and the footer write `experience.png`, `projects.png`, `footer.png`, and a matching `.json`.
+A passing About run writes `about-snap-18.png`, `about-top-96.png`, `about-top-57.png`, `about-top-18.png`, `about-top-0.png`, `reduced-about-top-96.png`, `reduced-about-top-0.png`, `about.json`, and `about-reduced.json`. Work and the footer write `work.png`, `footer.png`, and a matching `.json`.
 
 Hero numbers on a correct run: greeting opacity moves from below 0.25 to 1, the later figure trails the first by at least 0.15 during the pop, and the hidden fractions are 0.30, 0.65, and 1.00 at the three snap-off scrolls. With snap left on, the 25% scroll lands at 0. About, with snap off: opacity 0 at 96%, about 0.355 at 57%, about 0.916 at 18%, and 1 when the section top is at the top of the viewport. Reduced motion keeps the greeting at 1, the figures at 0.30 until the scroll tuck, and About at 1 even at 96%.
 
 `about-top-96.png` shows the hero, because the title is still below the fold. The opacity number is the proof there. `about-top-0.png` shows About on screen. The same split holds for the reduced-motion pair: `reduced-about-top-96.png` is still the hero.
 
-Each JSON file records the action and the resulting state: the scroll that was requested, where it landed, the opacity or hidden fraction, the final URL, image responses, and console errors. The screenshots are the matching frames. The contact check reads the hrefs and does not follow them. Experience, Projects, and the footer are proven by an empty accessible name plus the screenshot after scrolling that stage to the top. There is no test-only endpoint and no mocked network. The only injected style is the snap override, and the JSON's landed scroll shows whether a sample was taken at the position it claims.
+Each JSON file records the action and the resulting state: the scroll that was requested, where it landed, the opacity or hidden fraction, the final URL, image responses, and console errors. The screenshots are the matching frames. The contact check reads the hrefs and does not follow them. Work is proven by the heading `WORK + PROJECTS`, the placeholder copy, and the screenshot after scrolling that stage to the top. The footer is proven by an empty accessible name plus its screenshot. There is no test-only endpoint and no mocked network. The only injected style is the snap override, and the JSON's landed scroll shows whether a sample was taken at the position it claims.
 
 The driver fails the run on any console error or page error.
 
@@ -165,9 +164,11 @@ All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are exe
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 .cursor/skills/verify-dmaiwebsite/scripts/doctor.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
+.cursor/skills/verify-dmaiwebsite/scripts/drive.mjs work
 .cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+.cursor/skills/verify-dmaiwebsite/scripts/work-layout.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
 .cursor/skills/verify-dmaiwebsite/scripts/cleanup.sh
 ```
 
-`drive.mjs` takes one of `hero`, `about`, `experience`, `projects`, or `footer`. The feature file for that argument is the pass contract.
+`drive.mjs` takes one of `hero`, `about`, `work`, or `footer`. The feature file for that argument is the pass contract. `work-layout.mjs` checks the Work frame at phone, iPad, and desktop widths in Chromium and WebKit.

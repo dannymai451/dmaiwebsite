@@ -1,8 +1,7 @@
 import './components/stage.css'
 import Hero from './components/Hero'
 import About from './components/About'
-import Experience from './components/Experience'
-import Projects from './components/Projects'
+import Work from './components/Work'
 import Footer from './components/Footer'
 
 function App() {
@@ -11,8 +10,7 @@ function App() {
       <div className="page">
         <Hero />
         <About />
-        <Experience />
-        <Projects />
+        <Work />
       </div>
       <Footer />
     </>
