@@ -31,7 +31,7 @@
   margin: 0;
   font-family: "Caveat", "Greeting Fallback", cursive;
   font-weight: 700;
-  font-size: min(7.6rem, max(3.2rem, 11.2cqi), 14.2cqi);
+  font-size: min(7.6rem, 11.2cqi);
   line-height: 0.72;
   /* Tight line-height paints past the line box; pad so link margin measures from the ink. */
   padding-bottom: 0.10em;
