@@ -35,6 +35,7 @@
   line-height: 0.72;
   /* Tight line-height paints past the line box; pad so link margin measures from the ink. */
   padding-bottom: 0.10em;
+  padding-inline: 0.15em;
   color: #1a1a1a;
   text-align: center;
   white-space: nowrap;

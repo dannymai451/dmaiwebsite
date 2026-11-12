@@ -365,9 +365,25 @@ async function greetingCase(browser, engine, viewport, mode) {
     })
   })
   const bare = decodePNG(await page.screenshot())
+  const ink = await page.evaluate(() => {
+    const heading = document.querySelector('.hero-greeting')
+    const style = getComputedStyle(heading)
+    const node = [...heading.childNodes].find((item) => item.nodeType === Node.TEXT_NODE)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+    const metrics = ctx.measureText(node.textContent)
+    return {
+      overhang: metrics.actualBoundingBoxRight - metrics.width,
+      pad: parseFloat(style.paddingRight),
+    }
+  })
   await page.close()
   const gap = greetingGap(withBorder, bare, geo)
   const problems = []
+  if (ink.overhang > ink.pad + 0.5) {
+    problems.push(`y tail extends ${ink.overhang.toFixed(1)}px past the text box`)
+  }
   if (gap.right == null || gap.left == null) problems.push('greeting ink was not found')
   if (gap.right != null && gap.right < greetingClearance) {
     problems.push(`greeting ink is ${gap.right.toFixed(1)}px from the inner edge`)
@@ -385,6 +401,8 @@ async function greetingCase(browser, engine, viewport, mode) {
     fontSize: geo.fontSize,
     gapRight: gap.right,
     gapLeft: gap.left,
+    overhang: ink.overhang,
+    pad: ink.pad,
     problems,
     errors,
   }
@@ -398,7 +416,7 @@ async function runGreeting(engine, browserType) {
       const row = await greetingCase(browser, engine, viewport, mode)
       results.push(row)
       const detail = row.ok
-        ? `gap=${row.gapRight?.toFixed(1)} fs=${row.fontSize}`
+        ? `gap=${row.gapRight?.toFixed(1)} overhang=${row.overhang?.toFixed(1)} pad=${row.pad?.toFixed(1)} fs=${row.fontSize}`
         : [...row.problems, ...row.errors].join('; ')
       console.log(`${row.ok ? 'PASS' : 'FAIL'} ${row.label} ${detail}`)
     }

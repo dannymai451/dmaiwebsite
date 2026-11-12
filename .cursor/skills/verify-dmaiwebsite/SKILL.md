@@ -137,7 +137,9 @@ One script covers the greeting and the About photo. It does not start a server. 
 
 The greeting check opens WebKit, then Chromium, at 320, 375, 390, 393, 430, an iPad size of 768×1024, and 1440×900. Each width runs twice: once with Caveat loaded, and once with the Google Fonts request aborted so the fallback face is on screen. It waits until the greeting has faded in.
 
-The measurement is the painted ink, not the element box. The border is hidden for a second screenshot, the dark pixels of the greeting are found, and those pixels are compared with the inner edge of the border on the first screenshot. A case fails when that gap is under 26px on either side, when the contact links cross the white fill, or when a figure crosses the left or right of the viewport. The figures are meant to hang below the bottom edge.
+The measurement is the painted ink. The border is hidden for a second screenshot, the dark pixels of the greeting are found, and those pixels are compared with the inner edge of the border on the first screenshot. A case fails when that gap is under 26px on either side, when the contact links cross the white fill, or when a figure crosses the left or right of the viewport. The figures are meant to hang below the bottom edge.
+
+The same case measures the font's ink box against the greeting's own padding edge. Caveat's y extends past the advance width, and WebKit drops that ink when it sticks out of the text box. A case fails when the ink extends more than half a pixel past the padding.
 
 The About half is the photo meeting the stroke. Its pass rule is `about-tuck` in `features/about.md`. It uses Chromium and WebKit.
 
