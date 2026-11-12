@@ -42,13 +42,14 @@ function inkBorder(ctx, pts, { width, color, alpha, seed, amp }) {
   ctx.restore()
 }
 
-export default function Frame({ paper = '#fff', width = '100%', height = '100%' }) {
+export default function Frame({ paper = '#fff', width = '100%', height = '100%', children }) {
   const ref = useRef(null)
+  const fillRef = useRef(null)
 
   useEffect(() => {
     const host = ref.current
-    if (!host) return
-    const fill = host.querySelector('.panel-frame-fill')
+    const fill = fillRef.current?.querySelector('.panel-frame-fill')
+    if (!host || !fill) return
     const strips = [...host.querySelectorAll('canvas')]
 
     const draw = () => {
@@ -66,7 +67,7 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
       const inset = margin + innerPad
       // Innermost reach of the wobbly stroke. Content that stops here
       // touches the line and stays inside it.
-      const inkInner = margin + Math.ceil(stroke * 0.5 + amp * 1.5)
+      const inkOuter = Math.max(0, margin - Math.max(amp, 0.85))
       const strip = margin + Math.ceil(14 * scale)
 
       fill.style.background = paper
@@ -77,7 +78,7 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
       fill.style.width = `${Math.max(0, w - inset * 2)}px`
       fill.style.height = `${Math.max(0, h - inset * 2)}px`
       host.parentElement?.style.setProperty('--ink-inset', `${inset}px`)
-      host.parentElement?.style.setProperty('--ink-inner', `${inkInner}px`)
+      host.parentElement?.style.setProperty('--ink-outer', `${inkOuter}px`)
 
       const pts = []
       const corners = [
@@ -143,18 +144,19 @@ export default function Frame({ paper = '#fff', width = '100%', height = '100%' 
     }
   }, [paper])
 
+  const frameStyle = { '--frame-width': width, '--frame-height': height }
   return (
-    <div
-      ref={ref}
-      className="panel-frame"
-      style={{ '--frame-width': width, '--frame-height': height }}
-      aria-hidden="true"
-    >
-      <div className="panel-frame-fill" />
-      <canvas />
-      <canvas />
-      <canvas />
-      <canvas />
-    </div>
+    <>
+      <div ref={fillRef} className="panel-frame panel-frame-mat" style={frameStyle} aria-hidden="true">
+        <div className="panel-frame-fill" />
+      </div>
+      {children}
+      <div ref={ref} className="panel-frame panel-frame-ink" style={frameStyle} aria-hidden="true">
+        <canvas />
+        <canvas />
+        <canvas />
+        <canvas />
+      </div>
+    </>
   )
 }

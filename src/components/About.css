@@ -33,6 +33,7 @@
   height: calc(100% - 1.5rem);
   container: about-frame / size;
   opacity: 0;
+  overflow: hidden;
 }
 
 /* Type stays padded inside the border. The photo column runs down to the
@@ -116,14 +117,11 @@
 
 .about-photo {
   position: absolute;
-  inset: 0;
   display: block;
-  width: 100%;
-  height: 100%;
   object-fit: contain;
   object-position: right bottom;
   /* Drop from the paper edge onto the inside of the bottom stroke. */
-  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-inner, var(--ink-inset, 0px))));
+  transform: translateY(calc(var(--ink-inset, 0px) - var(--ink-outer, var(--ink-inset, 0px))));
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -141,8 +139,7 @@
 @container about-frame (max-aspect-ratio: 1) {
   .about-layout {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    align-content: stretch;
+    grid-template-rows: auto minmax(24cqmin, 1fr);
     row-gap: 5cqmin;
   }
 

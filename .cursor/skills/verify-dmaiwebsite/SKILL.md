@@ -129,21 +129,19 @@ Evidence lands in `artifacts/verify-dmaiwebsite/phone-bars/`. `phone-bars.mjs fa
 
 ## Edges
 
-Check that the hero greeting and the contact links stay inside the white card, and that the three figures stay inside the left and right edges of the viewport. The figures are meant to hang below the bottom edge. A vertical overhang there is not a failure.
-
-From the repo root, with the verification server already on 5199:
+One script covers the greeting and the About photo. It does not start a server. `VERIFY_URL` overrides `http://127.0.0.1:5199/`.
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
 ```
 
-The script does not start a server. It opens WebKit and Chromium at 320, 375, 390, 430, an iPad size of 768×1024, and 1440×900. Each width runs twice.
+The greeting check opens WebKit, then Chromium, at 320, 375, 390, 393, 430, an iPad size of 768×1024, and 1440×900. Each width runs twice: once with Caveat loaded, and once with the Google Fonts request aborted so the fallback face is on screen. It waits until the greeting has faded in.
 
-- `loaded` waits until Caveat has loaded, then measures.
-- `loading` aborts the Google Fonts requests, so the fallback face stays on screen. That is the face shown while Caveat is still loading.
-- `zoom125` and `zoom150` wait until that loaded layout has settled, then set the root font size to 20px or 24px. The card box does not change. A fit that only ran on the first layout fails here.
+The measurement is the painted ink, not the element box. The border is hidden for a second screenshot, the dark pixels of the greeting are found, and those pixels are compared with the inner edge of the border on the first screenshot. A case fails when that gap is under 26px on either side, when the contact links cross the white fill, or when a figure crosses the left or right of the viewport. The figures are meant to hang below the bottom edge.
 
-A case fails when the greeting text or the contact links cross `.panel-frame-fill` by more than half a pixel on any side, or when a figure crosses the viewport's left or right edge by more than half a pixel. The script prints one line per case, writes `artifacts/verify-dmaiwebsite/edges.json`, and exits 1 when any case fails. A blocked font request is not a page error.
+The About half is the photo meeting the stroke. Its pass rule is `about-tuck` in `features/about.md`. It uses Chromium and WebKit.
+
+The script prints one line per case, writes `artifacts/verify-dmaiwebsite/edges/edges.json`, and exits 1 when any case fails. A blocked font request is not a page error.
 
 ## Cleanup
 
@@ -165,8 +163,8 @@ All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are exe
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 .cursor/skills/verify-dmaiwebsite/scripts/doctor.mjs
 .cursor/skills/verify-dmaiwebsite/scripts/drive.mjs hero
-.cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
 .cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+.cursor/skills/verify-dmaiwebsite/scripts/phone-bars.mjs pass
 .cursor/skills/verify-dmaiwebsite/scripts/cleanup.sh
 ```
 
