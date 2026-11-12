@@ -16,14 +16,26 @@
   gap: 0;
 }
 
+@font-face {
+  font-family: "Greeting Fallback";
+  src:
+    local("DejaVu Serif"),
+    local("Liberation Serif"),
+    local("Times New Roman"),
+    local("Times"),
+    local("Georgia");
+  size-adjust: 62%;
+}
+
 .hero-greeting {
   margin: 0;
-  font-family: "Caveat", cursive;
+  font-family: "Caveat", "Greeting Fallback", cursive;
   font-weight: 700;
-  font-size: clamp(3.2rem, 11.2cqi, 7.6rem);
+  font-size: min(7.6rem, 11.2cqi);
   line-height: 0.72;
   /* Tight line-height paints past the line box; pad so link margin measures from the ink. */
   padding-bottom: 0.10em;
+  padding-inline: 0.15em;
   color: #1a1a1a;
   text-align: center;
   white-space: nowrap;

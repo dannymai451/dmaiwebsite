@@ -22,7 +22,7 @@ if lsof -nP -iTCP:5199 -sTCP:LISTEN >/dev/null 2>&1; then
 fi
 
 npm install
-npx playwright install chromium
+npx playwright install chromium webkit
 
 nohup npm run dev -- --host 127.0.0.1 --port 5199 --strictPort >"$scratch/dev.log" 2>&1 &
 echo $! >"$scratch/pid"

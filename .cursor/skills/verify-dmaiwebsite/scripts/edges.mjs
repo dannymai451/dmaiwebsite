@@ -430,15 +430,181 @@ async function runEngine(engine, browserType) {
   return results
 }
 
+const greetingViewports = [
+  { name: '320', width: 320, height: 844 },
+  { name: '375', width: 375, height: 844 },
+  { name: '390', width: 390, height: 844 },
+  { name: '393', width: 393, height: 844 },
+  { name: '430', width: 430, height: 844 },
+  { name: 'ipad', width: 768, height: 1024 },
+  { name: '1440', width: 1440, height: 900 },
+]
+
+const greetingModes = [
+  { name: 'loaded', blockFonts: false },
+  { name: 'loading', blockFonts: true },
+]
+
+const greetingClearance = 26
+
+function darkPixel(img, x, y) {
+  const i = (y * img.width + x) * img.channels
+  return img.data[i] < 160 && img.data[i + 1] < 160 && img.data[i + 2] < 160
+}
+
+function greetingGap(withBorder, bare, geo) {
+  const dpr = withBorder.width / geo.vw
+  const y0 = Math.max(0, Math.floor((geo.top - 20) * dpr))
+  const y1 = Math.min(withBorder.height - 1, Math.ceil((geo.bottom + 24) * dpr))
+  let right = Infinity
+  let left = Infinity
+  for (let y = y0; y <= y1; y++) {
+    let glyphL = -1
+    let glyphR = -1
+    for (let x = 0; x < bare.width; x++) {
+      if (!darkPixel(bare, x, y)) continue
+      if (glyphL < 0) glyphL = x
+      glyphR = x
+    }
+    if (glyphR < 0) continue
+    for (let x = glyphR + 1; x < withBorder.width; x++) {
+      if (!darkPixel(withBorder, x, y)) continue
+      right = Math.min(right, (x - glyphR) / dpr)
+      break
+    }
+    for (let x = glyphL - 1; x >= 0; x--) {
+      if (!darkPixel(withBorder, x, y)) continue
+      left = Math.min(left, (glyphL - x) / dpr)
+      break
+    }
+  }
+  return {
+    right: Number.isFinite(right) ? right : null,
+    left: Number.isFinite(left) ? left : null,
+  }
+}
+
+async function greetingCase(browser, engine, viewport, mode) {
+  const page = await browser.newPage({
+    viewport: { width: viewport.width, height: viewport.height },
+    deviceScaleFactor: 2,
+    isMobile: viewport.width < 900,
+    hasTouch: viewport.width < 900,
+  })
+  if (mode.blockFonts) {
+    await page.route('**/*', (route) => {
+      const hit = route.request().url()
+      if (hit.includes('fonts.googleapis.com') || hit.includes('fonts.gstatic.com')) {
+        route.abort()
+        return
+      }
+      route.continue()
+    })
+  }
+  const errors = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => parseFloat(document.querySelector('.hero .panel-frame-fill')?.style.width) > 40)
+  if (!mode.blockFonts) await page.evaluate(() => document.fonts.load('700 64px Caveat'))
+  await page.waitForFunction(() => parseFloat(getComputedStyle(document.querySelector('.hero-intro')).opacity) > 0.99)
+  const geo = await page.evaluate((vw) => {
+    const head = document.querySelector('.hero-greeting').getBoundingClientRect()
+    const fill = document.querySelector('.hero .panel-frame-fill').getBoundingClientRect()
+    const links = document.querySelector('.hero-links').getBoundingClientRect()
+    const images = [...document.querySelectorAll('.hero-hoptimists img')].map((image) => {
+      const box = image.getBoundingClientRect()
+      return { pastLeft: -box.left, pastRight: box.right - innerWidth }
+    })
+    return {
+      vw,
+      top: head.top,
+      bottom: head.bottom,
+      fontSize: getComputedStyle(document.querySelector('.hero-greeting')).fontSize,
+      linkPastLeft: fill.left - links.left,
+      linkPastRight: links.right - fill.right,
+      images,
+    }
+  }, viewport.width)
+  const withBorder = decodePNG(await page.screenshot())
+  await page.evaluate(() => {
+    document.querySelectorAll('.hero .panel-frame-ink').forEach((el) => {
+      el.style.opacity = '0'
+    })
+  })
+  const bare = decodePNG(await page.screenshot())
+  const ink = await page.evaluate(() => {
+    const heading = document.querySelector('.hero-greeting')
+    const style = getComputedStyle(heading)
+    const node = [...heading.childNodes].find((item) => item.nodeType === Node.TEXT_NODE)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+    const metrics = ctx.measureText(node.textContent)
+    return {
+      overhang: metrics.actualBoundingBoxRight - metrics.width,
+      pad: parseFloat(style.paddingRight),
+    }
+  })
+  await page.close()
+  const gap = greetingGap(withBorder, bare, geo)
+  const problems = []
+  if (ink.overhang > ink.pad + 0.5) {
+    problems.push(`y tail extends ${ink.overhang.toFixed(1)}px past the text box`)
+  }
+  if (gap.right == null || gap.left == null) problems.push('greeting ink was not found')
+  if (gap.right != null && gap.right < greetingClearance) {
+    problems.push(`greeting ink is ${gap.right.toFixed(1)}px from the inner edge`)
+  }
+  if (gap.left != null && gap.left < greetingClearance) {
+    problems.push(`greeting ink is ${gap.left.toFixed(1)}px from the left inner edge`)
+  }
+  if (geo.linkPastRight > 0.5 || geo.linkPastLeft > 0.5) problems.push('links cross the card')
+  geo.images.forEach((image, index) => {
+    if (image.pastLeft > 0.5 || image.pastRight > 0.5) problems.push(`figure ${index} crosses the viewport`)
+  })
+  return {
+    label: `${engine} greeting ${viewport.name} ${mode.name}`,
+    ok: problems.length === 0 && errors.length === 0,
+    fontSize: geo.fontSize,
+    gapRight: gap.right,
+    gapLeft: gap.left,
+    overhang: ink.overhang,
+    pad: ink.pad,
+    problems,
+    errors,
+  }
+}
+
+async function runGreeting(engine, browserType) {
+  const browser = await browserType.launch({ headless: true })
+  const results = []
+  for (const viewport of greetingViewports) {
+    for (const mode of greetingModes) {
+      const row = await greetingCase(browser, engine, viewport, mode)
+      results.push(row)
+      const detail = row.ok
+        ? `gap=${row.gapRight?.toFixed(1)} overhang=${row.overhang?.toFixed(1)} pad=${row.pad?.toFixed(1)} fs=${row.fontSize}`
+        : [...row.problems, ...row.errors].join('; ')
+      console.log(`${row.ok ? 'PASS' : 'FAIL'} ${row.label} ${detail}`)
+    }
+  }
+  await browser.close()
+  return results
+}
+
 fs.mkdirSync(shots, { recursive: true })
+const greeting = [
+  ...(await runGreeting('webkit', webkit)),
+  ...(await runGreeting('chromium', chromium)),
+]
 const results = [
   ...(await runEngine('chromium', chromium)),
   ...(await runEngine('webkit', webkit)),
 ]
-const failed = results.filter((row) => !row.ok)
-fs.writeFileSync(path.join(shots, 'edges.json'), JSON.stringify({ url, results }, null, 2))
+const failed = [...greeting, ...results].filter((row) => !row.ok)
+fs.writeFileSync(path.join(shots, 'edges.json'), JSON.stringify({ url, greeting, results }, null, 2))
 if (failed.length) {
-  console.log(`FAIL ${failed.length} of ${results.length}`)
+  console.log(`FAIL ${failed.length} of ${greeting.length + results.length}`)
   process.exit(1)
 }
-console.log(`PASS ${results.length}`)
+console.log(`PASS ${greeting.length + results.length}`)

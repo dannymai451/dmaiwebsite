@@ -22,7 +22,7 @@ From the repo root:
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
 ```
 
-The script installs npm dependencies, installs Playwright's Chromium only, and starts:
+The script installs npm dependencies, installs Playwright's Chromium and WebKit, and starts:
 
 ```bash
 npm run dev -- --host 127.0.0.1 --port 5199 --strictPort
@@ -109,16 +109,6 @@ Each JSON file records the action and the resulting state: the scroll that was r
 
 The driver fails the run on any console error or page error.
 
-## Edges
-
-The fade driver does not look at the cutout against the ink. After a change to that meeting point, run:
-
-```bash
-.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
-```
-
-`VERIFY_URL` overrides the default `http://127.0.0.1:5199/`. The pass rule is `about-tuck` in `features/about.md`. The script uses Chromium and WebKit. It does not start a server.
-
 ## Phone bars
 
 Desktop `drive.mjs` cannot see the phone-toolbar bugs. In this Playwright Chromium and WebKit, `100lvh`, `100dvh`, `100svh`, and `innerHeight` are one length, so `bottom: calc(100lvh - 100dvh)` computes to 0. Run this after any change to the hero anchor, on the same server:
@@ -137,6 +127,24 @@ npx playwright install webkit
 
 Evidence lands in `artifacts/verify-dmaiwebsite/phone-bars/`. `phone-bars.mjs fail-brave` is the harness check: with the `0b5947b` anchor served, it exits 0 only when that rule lifts the row by about 55px. Do not leave that CSS in the working tree.
 
+## Edges
+
+One script covers the greeting and the About photo. It does not start a server. `VERIFY_URL` overrides `http://127.0.0.1:5199/`.
+
+```bash
+.cursor/skills/verify-dmaiwebsite/scripts/edges.mjs
+```
+
+The greeting check opens WebKit, then Chromium, at 320, 375, 390, 393, 430, an iPad size of 768×1024, and 1440×900. Each width runs twice: once with Caveat loaded, and once with the Google Fonts request aborted so the fallback face is on screen. It waits until the greeting has faded in.
+
+The measurement is the painted ink. The border is hidden for a second screenshot, the dark pixels of the greeting are found, and those pixels are compared with the inner edge of the border on the first screenshot. A case fails when that gap is under 26px on either side, when the contact links cross the white fill, or when a figure crosses the left or right of the viewport. The figures are meant to hang below the bottom edge.
+
+The same case measures the font's ink box against the greeting's own padding edge. Caveat's y extends past the advance width, and WebKit drops that ink when it sticks out of the text box. A case fails when the ink extends more than half a pixel past the padding.
+
+The About half is the photo meeting the stroke. Its pass rule is `about-tuck` in `features/about.md`. It uses Chromium and WebKit.
+
+The script prints one line per case, writes `artifacts/verify-dmaiwebsite/edges/edges.json`, and exits 1 when any case fails. A blocked font request is not a page error.
+
 ## Cleanup
 
 Stop only the pid launch recorded.
@@ -151,7 +159,7 @@ If `npm run test:e2e` started its own server because 5199 was free, that suite s
 
 ## Helpers
 
-The scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
+All six scripts live in `.cursor/skills/verify-dmaiwebsite/scripts/` and are executable. Run them from the repo root:
 
 ```bash
 .cursor/skills/verify-dmaiwebsite/scripts/launch.sh
